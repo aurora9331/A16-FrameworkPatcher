@@ -77,7 +77,7 @@ def modify_file(file_path):
         "shouldCheckUpgradeKeySetLocked": re.compile(
             r'\.method\s+public\s+shouldCheckUpgradeKeySetLocked\(Lcom/android/server/pm/pkg/PackageStateInternal;Lcom/android/server/pm/pkg/SharedUserApi;I\)Z'),
         "verifySignatures": re.compile(
-            r'\.method\s+public\s+static\s+verifySignatures\(Lcom/android/server/pm/PackageSetting;Lcom/android/server/pm/SharedUserSetting;Lcom/android/server/pm/PackageSetting;Landroid/content/pm/SigningDetails;\)I'),
+            r'\.method\s+public\s+static\s+verifySignatures\(Lcom/android/server/pm/PackageSetting;Lcom/android/server/pm/SharedUserSetting;Lcom/android/server/pm/PackageSetting;Landroid/content/pm/SigningDetails;Landroid/content/pm/SigningDetails;\)I'),
         "compareSignatures": re.compile(
             r'\.method\s+public\s+static\s+compareSignatures\(Landroid/content/pm/SigningDetails;Landroid/content/pm/SigningDetails;\)I'),
         "matchSignaturesCompat": re.compile(
