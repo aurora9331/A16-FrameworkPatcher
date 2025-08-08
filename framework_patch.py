@@ -5,7 +5,6 @@ import shutil
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
 def patch(filepath):
     with open(filepath, 'r') as file:
         lines = file.readlines()
@@ -39,7 +38,7 @@ def patch(filepath):
                         modified_lines.append("    const/4 v0, 0x0\n")
                         modified_lines.append("    return v0\n")
                     elif method_type == "toString":
-                        modified_lines.append("     const/4 v0, 0x0\n")
+                        modified_lines.append("    const/4 v0, 0x0\n")
                         modified_lines.append("    return-object v0\n")
                 in_method = False
                 method_type = None
@@ -61,7 +60,6 @@ def patch(filepath):
     with open(filepath, 'w') as file:
         file.writelines(modified_lines)
     logging.info(f"Dosya için değişiklikler tamamlandı: {filepath}")
-
 
 def modify_file(file_path):
     logging.info(f"Dosya değiştiriliyor: {file_path}")
@@ -146,7 +144,6 @@ def modify_file(file_path):
         file.writelines(modified_lines)
     logging.info(f"Dosya için değişiklikler tamamlandı: {file_path}")
 
-
 def modify_package_parser(file_path):
     logging.info(f"PackageParser dosyası değiştiriliyor: {file_path}")
     with open(file_path, 'r') as file:
@@ -154,7 +151,7 @@ def modify_package_parser(file_path):
 
     modified_lines = []
     pattern = re.compile(
-        r'invoke-static \{v2, v0, v1\}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I\)Landroid/content/[...'
+        r'invoke-static \{v2, v0, v1\}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I\)Landroid/content/.*'
     )
 
     for line in lines:
@@ -167,7 +164,6 @@ def modify_package_parser(file_path):
         file.writelines(modified_lines)
     logging.info(f"PackageParser dosyası değişikliği tamamlandı: {file_path}")
 
-
 def modify_apk_signature_verifier(file_path):
     logging.info(f"ApkSignatureVerifier dosyası değiştiriliyor: {file_path}")
     with open(file_path, 'r') as file:
@@ -175,7 +171,7 @@ def modify_apk_signature_verifier(file_path):
 
     modified_lines = []
     pattern = re.compile(
-        r'invoke-static \{p0, p1, p3\}, Landroid/util/apk/ApkSignatureVerifier;->verifyV1Signature\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;Z\)Landroid/content/pm/parsing/resul[...'
+        r'invoke-static \{p0, p1, p3\}, Landroid/util/apk/ApkSignatureVerifier;->verifyV1Signature\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;Z\)Landroid/content/pm/parsing/result/.*'
     )
 
     for line in lines:
@@ -187,7 +183,6 @@ def modify_apk_signature_verifier(file_path):
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
     logging.info(f"ApkSignatureVerifier dosyası değişikliği tamamlandı: {file_path}")
-
 
 def modify_exception_file(file_path):
     logging.info(f"Exception dosyası değiştiriliyor: {file_path}")
@@ -205,21 +200,17 @@ def modify_exception_file(file_path):
         file.writelines(modified_lines)
     logging.info(f"Exception dosyası değişikliği tamamlandı: {file_path}")
 
-
 def modify_apk_signature_scheme_v2_verifier(file_path):
     logging.info(f"ApkSignatureSchemeV2Verifier dosyası değiştiriliyor: {file_path}")
     modify_invoke_static(file_path)
-
 
 def modify_apk_signature_scheme_v3_verifier(file_path):
     logging.info(f"ApkSignatureSchemeV3Verifier dosyası değiştiriliyor: {file_path}")
     modify_invoke_static(file_path)
 
-
 def modify_apk_signing_block_utils(file_path):
     logging.info(f"ApkSigningBlockUtils dosyası değiştiriliyor: {file_path}")
     modify_invoke_static(file_path)
-
 
 def modify_invoke_static(file_path):
     with open(file_path, 'r') as file:
@@ -244,7 +235,6 @@ def modify_invoke_static(file_path):
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
     logging.info(f"invoke-static değişikliği tamamlandı: {file_path}")
-
 
 def modify_strict_jar_verifier(file_path):
     logging.info(f"StrictJarVerifier dosyası değiştiriliyor: {file_path}")
@@ -274,7 +264,6 @@ def modify_strict_jar_verifier(file_path):
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
     logging.info(f"StrictJarVerifier dosyası değişikliği tamamlandı: {file_path}")
-
 
 def modify_Parsing_Package_Utils_sharedUserId(file_path):
     logging.info(f"parseSharedUser fonksiyonu değiştiriliyor: {file_path}")
@@ -318,8 +307,7 @@ def modify_Parsing_Package_Utils_sharedUserId(file_path):
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
     logging.info(f"parseSharedUser fonksiyonu değişikliği tamamlandı: {file_path}")
-    
-        
+
 def modify_android_content_pm_PackageParser(file_path):
     logging.info(f"android.content.pm.PackageParser değiştiriliyor: {file_path}")
     with open(file_path, 'r') as file:
@@ -352,7 +340,6 @@ def modify_android_content_pm_PackageParser(file_path):
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
     logging.info(f"android.content.pm.PackageParser değişikliği tamamlandı: {file_path}")
-
 
 def modify_strict_jar_file(file_path):
     logging.info(f"Dosya işleniyor: {file_path}")
@@ -405,7 +392,6 @@ def modify_strict_jar_file(file_path):
 
     logging.info(f"Dosya değişikliği tamamlandı: {file_path}")
 
-
 def copy_and_replace_files(source_dirs, target_dirs, sub_dirs):
     for source_dir, sub_dir in zip(source_dirs, sub_dirs):
         for target_dir in target_dirs:
@@ -423,7 +409,6 @@ def copy_and_replace_files(source_dirs, target_dirs, sub_dirs):
                         logging.info(f"{src_file} -> {dst_file} kopyalandı")
             else:
                 logging.warning(f"Hedef klasör mevcut değil: {target_policy_dir}")
-
 
 def modify_smali_files(directories):
     for directory in directories:
@@ -518,7 +503,6 @@ def modify_smali_files(directories):
             # modify_application_info(application_info)  # Bu satırı kaldırabilir veya yorum satırı yapabilirsiniz
         else:
             logging.warning(f"Dosya bulunamadı: {application_info}")
-
 
 if __name__ == "__main__":
     directories = ["classes", "classes2", "classes3", "classes4", "classes5"]
