@@ -15,9 +15,9 @@ def patch(filepath):
     in_method = False
     method_type = None
     method_patterns = {
-        "equals": re.compile(r'\.method.*equals\\(Ljava/lang/Object;\\)Z'),
-        "hashCode": re.compile(r'\.method.*hashCode\\(\\)I'),
-        "toString": re.compile(r'\.method.*toString\\(\\)Ljava/lang/String;')
+        "equals": re.compile(r'\.method.*equals\(Ljava/lang/Object;\)Z'),
+        "hashCode": re.compile(r'\.method.*hashCode\(\)I'),
+        "toString": re.compile(r'\.method.*toString\(\)Ljava/lang/String;')
     }
     registers_line = ""
 
@@ -38,7 +38,7 @@ def patch(filepath):
                         modified_lines.append("    const/4 v0, 0x0\n")
                         modified_lines.append("    return v0\n")
                     elif method_type == "toString":
-                        modified_lines.append("     const/4 v0, 0x0\n")
+                        modified_lines.append("    const/4 v0, 0x0\n")
                         modified_lines.append("    return-object v0\n")
                 in_method = False
                 method_type = None
@@ -73,13 +73,15 @@ def modify_file(file_path):
 
     method_patterns = {
         "checkDowngrade": re.compile(
-            r'\.method public static checkDowngrade\\(Lcom/android/server/pm/pkg/AndroidPackage;Landroid/content/pm/PackageInfoLite;\\)V'),
-        "shouldCheckUpgradeKeySetLocked": re.compile(r'\.method public shouldCheckUpgradeKeySetLocked\\(Lcom/android/server/pm/pkg/PackageStateInternal;Lcom/android/server/pm/pkg/SharedUserApi;I\\)Z'),
+            r'\.method\s+public\s+static\s+checkDowngrade\(Lcom/android/server/pm/pkg/AndroidPackage;Landroid/content/pm/PackageInfoLite;\)V'),
+        "shouldCheckUpgradeKeySetLocked": re.compile(
+            r'\.method\s+public\s+shouldCheckUpgradeKeySetLocked\(Lcom/android/server/pm/pkg/PackageStateInternal;Lcom/android/server/pm/pkg/SharedUserApi;I\)Z'),
         "verifySignatures": re.compile(
-            r'\.method public static verifySignatures\\(Lcom/android/server/pm/PackageSetting;Lcom/android/server/pm/SharedUserSetting;Lcom/android/server/pm/PackageSetting;Landroid/content/pm/SigningDetails;\\)I'),
+            r'\.method\s+public\s+static\s+verifySignatures\(Lcom/android/server/pm/PackageSetting;Lcom/android/server/pm/SharedUserSetting;Lcom/android/server/pm/PackageSetting;Landroid/content/pm/SigningDetails;\)I'),
         "compareSignatures": re.compile(
-            r'\.method public static compareSignatures\\(Landroid/content/pm/SigningDetails;Landroid/content/pm/SigningDetails;\\)I'),
-        "matchSignaturesCompat": re.compile(r'\.method.*matchSignaturesCompat\\(.*\\)Z')
+            r'\.method\s+public\s+static\s+compareSignatures\(Landroid/content/pm/SigningDetails;Landroid/content/pm/SigningDetails;\)I'),
+        "matchSignaturesCompat": re.compile(
+            r'\.method.*matchSignaturesCompat\(.*\)Z')
     }
 
     for line in lines:
@@ -190,12 +192,12 @@ def modify_install_package_helper(file_path):
     last_if_eqz_index = None
 
     for i, line in enumerate(lines):
-        if re.match(r'\.method.*preparePackageLI\\(.*\\)', line) and "private" in line:
+        if re.match(r'\.method.*preparePackageLI\(.*\)', line) and "private" in line:
             logging.info("Metot bulundu: preparePackageLI.")
             in_method = True
 
         if in_method:
-            if re.search(r'invoke-interface \{p5\}, Lcom/android/server/pm/pkg/AndroidPackage;->isLeavingSharedUser\\(\\)Z', line):
+            if re.search(r'invoke-interface \{p5\}, Lcom/android/server/pm/pkg/AndroidPackage;->isLeavingSharedUser\(\)Z', line):
                 logging.info(f"invoke-interface satırı bulundu satır {i + 1}: {line.strip()}")
                 const_string_index = i
                 break
