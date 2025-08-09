@@ -1,7 +1,11 @@
-name: Hızlı Script Testi
+name: Hızlı Script Testi (framework_patch.py ile framework.jar desteği)
 
 on:
   workflow_dispatch:
+    inputs:
+      framework_jar_url:
+        description: 'Test için framework.jar dosyasının URL adresi'
+        required: false
 
 jobs:
   quick-test:
@@ -15,7 +19,19 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Test Ortamı Hazırlama
+      - name: framework.jar indir (isteğe bağlı)
+        if: ${{ github.event.inputs.framework_jar_url != '' }}
+        run: |
+          curl -L -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
+
+      - name: framework.jar içeriğini çıkart
+        if: ${{ github.event.inputs.framework_jar_url != '' }}
+        run: |
+          mkdir -p framework
+          7z x framework.jar -oframework || true
+
+      - name: Örnek smali dosyası oluştur (eğer framework.jar verilmediyse)
+        if: ${{ github.event.inputs.framework_jar_url == '' }}
         run: |
           mkdir -p classes/android/content/pm
           cat > classes/android/content/pm/SigningDetails.smali <<EOF
@@ -26,10 +42,25 @@ jobs:
           .end method
           EOF
 
+      - name: framework.jar varsa dex'i decompile et
+        if: ${{ github.event.inputs.framework_jar_url != '' }}
+        run: |
+          wget https://github.com/JesusFreke/smali/releases/download/v2.5.2/baksmali-2.5.2.jar -O baksmali.jar
+          # framework klasöründe classes.dex varsa decompile et
+          if [ -f framework/classes.dex ]; then
+            java -jar baksmali.jar d framework/classes.dex -o classes
+          else
+            echo "framework/classes.dex bulunamadı, test için örnek klasör kullanılacak."
+          fi
+
       - name: Scripti Çalıştır (framework_patch.py)
         run: |
           python3 framework_patch.py
 
       - name: Sonucu Kontrol Et
         run: |
-          cat classes/android/content/pm/SigningDetails.smali
+          if [ -f classes/android/content/pm/SigningDetails.smali ]; then
+            cat classes/android/content/pm/SigningDetails.smali
+          else
+            echo "Çıktı dosyası bulunamadı veya framework.jar içinden çıkartılamadı."
+          fi
