@@ -1,0 +1,35 @@
+name: Hızlı Script Testi
+
+on:
+  workflow_dispatch:
+
+jobs:
+  quick-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo Checkout
+        uses: actions/checkout@v4
+
+      - name: Python Kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Test Ortamı Hazırlama
+        run: |
+          mkdir -p classes/android/content/pm
+          cat > classes/android/content/pm/SigningDetails.smali <<EOF
+          .method public equals(Ljava/lang/Object;)Z
+              .registers 2
+              invoke-custom {v0}, Ljava/lang/Object;->equals()Z
+              return v0
+          .end method
+          EOF
+
+      - name: Scripti Çalıştır (framework_patch.py)
+        run: |
+          python3 framework_patch.py
+
+      - name: Sonucu Kontrol Et
+        run: |
+          cat classes/android/content/pm/SigningDetails.smali
