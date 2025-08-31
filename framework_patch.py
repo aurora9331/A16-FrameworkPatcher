@@ -325,17 +325,17 @@ def modify_android_content_pm_PackageParser(file_path):
 
     modified_lines = []
     target_string = "\"<manifest> specifies bad sharedUserId name \\\"\""
-    if_nez_pattern = re.compile(r'if-nez v5, :cond_\w+')
+    if_nez_pattern = re.compile(r'if-nez v14, :cond_\w+')
     
     for i, line in enumerate(lines):
         if target_string in line:
             logging.info(f"Found target string at line {i + 1}: {line.strip()}")
-            for j in range(i - 1, -1, -1):  # Search upwards for 'if-nez v5, :cond_x'
+            for j in range(i - 1, -1, -1):  # Search upwards for 'if-nez v14, :cond_x'
                 if if_nez_pattern.search(lines[j]):
                     logging.info(f"Found 'if-nez' at line {j + 1}: {lines[j].strip()}")
                     modified_lines = (
                         lines[:j] +
-                        ["    const/4 v5, 0x1\n"] +
+                        ["    const/4 v14, 0x1\n"] +
                         lines[j:]
                     )
                     break
