@@ -154,7 +154,7 @@ def modify_package_parser(file_path):
 
     modified_lines = []
     pattern = re.compile(
-        r'invoke-static \{v2, v0, v1\}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I\)Landroid/content/[...'
+        r'invoke-static \{v2, v0, v1\}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I\)Landroid/content/pm/parsing/result/ParseResult;'
     )
 
     for line in lines:
@@ -175,7 +175,7 @@ def modify_apk_signature_verifier(file_path):
 
     modified_lines = []
     pattern = re.compile(
-        r'invoke-static \{p0, p1, p3\}, Landroid/util/apk/ApkSignatureVerifier;->verifyV1Signature\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;Z\)Landroid/content/pm/parsing/resul[...'
+        r'invoke-static \{p0, p1, p3\}, Landroid/util/apk/ApkSignatureVerifier;->verifyV1Signature\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;Z\)Landroid/content/pm/parsing/result/ParseResult;'
     )
 
     for line in lines:
@@ -274,7 +274,7 @@ def modify_strict_jar_verifier(file_path):
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
     logging.info(f"Completed modification for file: {file_path}")
-    # GUARANTEED PATCH: also call modify_file to ensure verifyMessageDigest is patched!
+    # Garantili patch için ayrıca modify_file çağır!
     modify_file(file_path)
 
 
