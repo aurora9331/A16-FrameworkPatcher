@@ -78,7 +78,7 @@ def modify_file(file_path):
         "checkCapability": re.compile(r'\.method.*checkCapability\(.*\)Z'),
         "checkCapabilityRecover": re.compile(r'\.method.*checkCapabilityRecover\(.*\)Z'),
         "hasAncestorOrSelf": re.compile(r'\.method.*hasAncestorOrSelf\(.*\)Z'),
-        "verifyMessageDigest": re.compile(r'\.method.*verifyMessageDigest\(.*\)Z'),
+        "verifyMessageDigest" : re.compile(r'\.method.*verifyMessageDigest\(.*\)Z'),
         "getMinimumSignatureSchemeVersionForTargetSdk": re.compile(
             r'\.method.*getMinimumSignatureSchemeVersionForTargetSdk\(I\)I'),
         "isPackageWhitelistedForHiddenApis": re.compile(r'\.method.*isPackageWhitelistedForHiddenApis\(.*\)Z'),
@@ -154,8 +154,7 @@ def modify_package_parser(file_path):
 
     modified_lines = []
     pattern = re.compile(
-        r'invoke-static \{v2, v0, v1\}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I\)Landroid/content/pm/parsing/result/ParseResult;'
-    )
+        r'invoke-static \{v2, v0, v1\}, Landroid/util/apk/ApkSignatureVerifier;->unsafeGetCertsWithoutVerification\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;I\)Landroid/content/pm/parsing/result/ParseResult;')
 
     for line in lines:
         if pattern.search(line):
@@ -175,8 +174,7 @@ def modify_apk_signature_verifier(file_path):
 
     modified_lines = []
     pattern = re.compile(
-        r'invoke-static \{p0, p1, p3\}, Landroid/util/apk/ApkSignatureVerifier;->verifyV1Signature\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;Z\)Landroid/content/pm/parsing/result/ParseResult;'
-    )
+        r'invoke-static \{p0, p1, p3\}, Landroid/util/apk/ApkSignatureVerifier;->verifyV1Signature\(Landroid/content/pm/parsing/result/ParseInput;Ljava/lang/String;Z\)Landroid/content/pm/parsing/result/ParseResult;')
 
     for line in lines:
         if pattern.search(line):
@@ -254,7 +252,7 @@ def modify_strict_jar_verifier(file_path):
 
     modified_lines = []
     in_method = False
-    method_start_pattern = re.compile(r'\.method.*verifyMessageDigest\(.*\)Z')
+    method_start_pattern = re.compile(r'\.method private static blacklist verifyMessageDigest\(\[B\[B\)Z')
     target_line_pattern = re.compile(r'const/4 v1, 0x0')
 
     for line in lines:
@@ -274,8 +272,6 @@ def modify_strict_jar_verifier(file_path):
     with open(file_path, 'w') as file:
         file.writelines(modified_lines)
     logging.info(f"Completed modification for file: {file_path}")
-    # Garantili patch için ayrıca modify_file çağır!
-    modify_file(file_path)
 
 
 def modify_Parsing_Package_Utils_sharedUserId(file_path):
@@ -498,7 +494,6 @@ def modify_smali_files(directories):
         if os.path.exists(strict_jar_verifier):
             logging.info(f"Found file: {strict_jar_verifier}")
             modify_strict_jar_verifier(strict_jar_verifier)
-            modify_file(strict_jar_verifier)  # Ekstra garanti için!
         else:
             logging.warning(f"File not found: {strict_jar_verifier}")
         if os.path.exists(Parsing_Package_Utils_sharedUserId):
