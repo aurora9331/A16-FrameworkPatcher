@@ -14,7 +14,10 @@ jobs:
 
     steps:
     - name: Issue body'yi dosyaya yaz
-      run: echo "${{ github.event.issue.body }}" > issue_body.json
+      run: echo "${{ github.event.issue.body }}" > issue_body_raw.txt
+
+    - name: Kod bloğu ve markdown temizliği
+      run: sed '/^```/d' issue_body_raw.txt > issue_body.json
 
     - name: Parametreleri ayıkla
       id: parse
