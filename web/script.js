@@ -1,0 +1,1 @@
+Türkçeleştirilmiş, repo adı güncellenmiş JS dosyası.
