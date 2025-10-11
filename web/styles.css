@@ -1,1 +1,61 @@
-Orijinal CSS dosyası.
+body {
+    font-family: Georgia, serif;
+    background: #fff;
+    color: #111;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    margin: 0 auto;
+    max-width: 750px;
+    padding: 12px;
+}
+h1 { font-size: 2.5em; margin-bottom: 0.3em; }
+h2 { margin-top: 1.8em; }
+.version-selector {
+    margin-bottom: 1em;
+}
+.version-selector button {
+    font-size: 1em;
+    margin-right: 8px;
+    padding: 4px 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #eee;
+    cursor: pointer;
+}
+.version-selector button.active {
+    background: #ddd;
+    font-weight: bold;
+}
+.form-section { display: none; }
+.form-section.active { display: block; }
+form { margin-bottom: 2em; }
+label { display: inline-block; margin: 0.6em 0 0.2em 0; }
+input[type="text"], input[type="url"] {
+    width: 220px;
+    padding: 4px;
+    margin-right: 7px;
+    font-size: 1em;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+button[type="submit"], button[type="reset"] {
+    margin-top: 1em;
+    padding: 5px 14px;
+    font-size: 1em;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    background: #eee;
+    cursor: pointer;
+}
+footer {
+    margin-top: 2em;
+    font-size: 1em;
+    text-align: center;
+}
+footer a {
+    color: #3366cc;
+    margin: 0 8px;
+    text-decoration: none;
+}
