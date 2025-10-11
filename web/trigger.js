@@ -1,8 +1,6 @@
-// Dikkat: Token'ın client tarafında olması güvenlik açısından önerilmez!
-// Sadece test amaçlıdır. Gerçek kullanımda backend proxy gerekir.
-
+// Sadece kendin için, private repoda ve paylaşmadan kullan!
 async function triggerWorkflow(inputs) {
-    const token = "GITHUB_PERSONAL_ACCESS_TOKEN"; // Buraya kendi tokenını yazmalısın
+    const token = "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"; // Kendi GitHub tokenını buraya ekle
     const url = "https://api.github.com/repos/aurora9331/A16-FrameworkPatcher/actions/workflows/patcher.yml/dispatches";
     const body = {
         ref: "main",
@@ -26,22 +24,3 @@ async function triggerWorkflow(inputs) {
         document.getElementById("error-message").innerText = await response.text();
     }
 }
-
-// index.html'deki form submit edildiğinde tetiklenmesi için:
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('a16-form');
-    if (form) {
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const inputs = {
-                framework_jar_url: document.getElementById('a16-framework-url').value,
-                services_jar_url: document.getElementById('a16-services-url').value,
-                miui_services_jar_url: document.getElementById('a16-miui-services-url').value,
-                android_api_level: document.getElementById('a16-api-level').value,
-                custom_device_name: document.getElementById('a16-device-name').value,
-                custom_version: document.getElementById('a16-version-name').value
-            };
-            await triggerWorkflow(inputs);
-        });
-    }
-});
