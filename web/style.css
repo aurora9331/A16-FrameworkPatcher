@@ -1,16 +1,16 @@
 :root {
-    --bg: #2d033b;           /* Koyu mor arka plan */
-    --bg-alt: #3a006b;       /* Biraz daha açık mor */
-    --text: #ffffff;         /* Beyaz metin */
-    --accent: #fbeeff;       /* Açık mor-pembe accent */
-    --accent-dark: #c77dff;  /* Canlı mor accent-dark */
+    --bg: #2d033b;
+    --bg-alt: #3a006b;
+    --text: #ffffff;
+    --accent: #fbeeff;
+    --accent-dark: #c77dff;
     --success: #a6e3a1;
     --error: #f38ba8;
-    --border: #7d5aa4;       /* Morumsu border */
-    --input-bg: #4b006e;     /* Inputlarda koyu mor */
+    --border: #7d5aa4;
+    --input-bg: #4b006e;
     --input-text: #ffffff;
     --input-border: #a259c7;
-    --btn-bg: #c77dff;       /* Butonlar için canlı mor */
+    --btn-bg: #c77dff;
     --btn-hover: #a259c7;
     --btn-text: #2d033b;
     --secondary-bg: #7d5aa4;
@@ -139,6 +139,13 @@ a:hover {
     margin-bottom: 18px;
 }
 
+/* BAŞLIK VE İKONLAR BEYAZ, DAHA NET */
+.form-group label, .form-group i {
+    color: #fff !important;
+    font-weight: 600;
+    text-shadow: 0 1px 8px #2d033b30;
+}
+
 .form-group {
     margin-bottom: 18px;
     display: flex;
@@ -146,12 +153,6 @@ a:hover {
     gap: 3px;
     width: 100%;
     box-sizing: border-box;
-}
-
-.form-group label {
-    font-weight: 500;
-    color: var(--accent-dark);
-    margin-bottom: 2px;
 }
 
 .form-group input[type="url"],
@@ -285,7 +286,7 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(45, 3, 59, 0.7); /* Koyu morun transparan hali */
+    background: rgba(45, 3, 59, 0.7);
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
