@@ -1,4 +1,4 @@
-name: Framework Yama Aracı
+name: Android 16 Framework Patcher
 
 on:
   workflow_dispatch:
