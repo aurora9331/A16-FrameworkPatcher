@@ -57,6 +57,14 @@ a:hover {
     text-align: center;
 }
 
+/* Eklendi: Logo başlık ve ikon hizalama */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
 .logo h1 {
     font-size: 2rem;
     font-weight: bold;
