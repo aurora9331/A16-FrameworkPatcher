@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // GÖNDERİLEN input anahtarlarını workflow ile birebir al!
+  // Workflow ile birebir anahtarları al
   const {
     framework_jar_url,
     services_jar_url,
