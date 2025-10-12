@@ -3,7 +3,7 @@
 # Usage: source ./helper.sh
 # Exposes: init_env, ensure_tools, decompile_jar, recompile_jar, backup_original_jar,
 #          add_static_return_patch, patch_return_void_method,
-#          modify_invoke_custom_methods, create_magisk_module, find_smali_method_file
+#          modify_invoke_custom_methods, find_smali_method_file
 #
 # Designed for use in CI / GitHub workflow. Functions accept explicit decompile_dir
 # where appropriate so scripts can be called against multiple jars.
@@ -19,7 +19,6 @@ init_env() {
     : "${TOOLS_DIR:=${PWD}/tools}"
     : "${WORK_DIR:=${PWD}}"
     : "${BACKUP_DIR:=${WORK_DIR}/backup}"
-    : "${MAGISK_TEMPLATE_DIR:=magisk_module}"   # template dir for create_magisk_module
     mkdir -p "$BACKUP_DIR"
 }
 
@@ -48,7 +47,7 @@ ensure_tools() {
     fi
 
     if ! command -v 7z >/dev/null 2>&1; then
-        warn "7z not found in PATH — create_magisk_module will try to use zip if available"
+        warn "7z not found in PATH"
     fi
 
     return 0
@@ -323,61 +322,6 @@ ${method_head_escaped}\\
     done
 
     return 0
-}
-
-# ------------------------------
-# Magisk module creation
-# ------------------------------
-create_magisk_module() {
-    local api_level="$1"
-    local device_name="$2"
-    local version_name="$3"
-
-    log "Creating Magisk module for $device_name (v$version_name)"
-
-    local build_dir="build_module"
-    rm -rf "$build_dir"
-    cp -r "$MAGISK_TEMPLATE_DIR" "$build_dir" || {
-        err "Magisk template not found: $MAGISK_TEMPLATE_DIR"
-        return 1
-    }
-
-    mkdir -p "$build_dir/system/framework"
-    mkdir -p "$build_dir/system/system_ext/framework"
-
-    # copy patched files (if present in cwd)
-    [ -f "framework_patched.jar" ] && cp "framework_patched.jar" "$build_dir/system/framework/framework.jar"
-    [ -f "services_patched.jar" ] && cp "services_patched.jar" "$build_dir/system/framework/services.jar"
-    [ -f "miui-services_patched.jar" ] && cp "miui-services_patched.jar" "$build_dir/system/system_ext/framework/miui-services.jar"
-
-    # edit module.prop if exists
-    local module_prop="$build_dir/module.prop"
-    if [ -f "$module_prop" ]; then
-        sed -i "s/^version=.*/version=$version_name/" "$module_prop" || true
-        sed -i "s/^versionCode=.*/versionCode=$version_name/" "$module_prop" || true
-    fi
-
-    local safe_version
-    safe_version=$(printf "%s" "$version_name" | sed 's/[. ]/-/g')
-    local zip_name="Framework-Patcher-${device_name}-${safe_version}.zip"
-
-    if command -v 7z >/dev/null 2>&1; then
-        (cd "$build_dir" && 7z a -tzip "../$zip_name" "*" > /dev/null) || {
-            err "7z failed to create $zip_name"
-            return 1
-        }
-    elif command -v zip >/dev/null 2>&1; then
-        (cd "$build_dir" && zip -r "../$zip_name" . > /dev/null) || {
-            err "zip failed to create $zip_name"
-            return 1
-        }
-    else
-        err "No archiver found (7z or zip). Install one to create module archive."
-        return 1
-    fi
-
-    log "Created Magisk module: $zip_name"
-    echo "$zip_name"
 }
 
 # ------------------------------
