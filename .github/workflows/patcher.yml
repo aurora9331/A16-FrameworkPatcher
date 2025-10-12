@@ -51,37 +51,36 @@ jobs:
 
       - name: Download framework JARs
         run: |
-          wget -O framework.jar "${{ github.event.inputs.framework_url }}"
-          wget -O services.jar "${{ github.event.inputs.services_url }}"
-          wget -O miui-services.jar "${{ github.event.inputs.miui_services_url }}"
+          wget -O framework.jar "${{ github.event.inputs.framework_jar_url }}"
+          wget -O services.jar "${{ github.event.inputs.services_jar_url }}"
+          wget -O miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
 
       - name: Run Android 16 patcher
         run: |
           chmod +x scripts/patcher_a16.sh
           ./scripts/patcher_a16.sh \
-            "${{ github.event.inputs.api_level }}" \
-            "${{ github.event.inputs.device_name }}" \
-            "${{ github.event.inputs.version_name }}" \
+            "${{ github.event.inputs.android_api_level }}" \
+            "${{ github.event.inputs.custom_device_name }}" \
+            "${{ github.event.inputs.custom_version }}" \
             --framework --services --miui-services
 
       - name: List generated artifacts
         run: |
           echo "Generated files:"
-          ls -R | grep -E 'patched\.jar$|Framework-Patcher-'
+          ls -R | grep -E 'patched\\.jar$|Framework-Patcher-'
 
       - name: Set Release Info
         id: release_info
         run: |
-          # Format version name to be git tag friendly (replace spaces and dots with hyphens)
-          SAFE_VERSION=$(echo "${{ github.event.inputs.version_name }}" | sed 's/[. ]/-/g')
-          RELEASE_TAG="${{ github.event.inputs.device_name }}_${SAFE_VERSION}"
+          SAFE_VERSION=$(echo "${{ github.event.inputs.custom_version }}" | sed 's/[. ]/-/g')
+          RELEASE_TAG="${{ github.event.inputs.custom_device_name }}_${SAFE_VERSION}"
           echo "tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
-          echo "name=Android 16 Framework Patch for ${{ github.event.inputs.device_name }} (${{ github.event.inputs.version_name }})" >> $GITHUB_OUTPUT
+          echo "name=Android 16 Framework Patch for ${{ github.event.inputs.custom_device_name }} (${{ github.event.inputs.custom_version }})" >> $GITHUB_OUTPUT
 
       - name: Find Module ZIP
         id: find_zip
         run: |
-          ZIP_FILE=$(ls Framework-Patcher-${{ github.event.inputs.device_name }}*.zip)
+          ZIP_FILE=$(ls Framework-Patcher-${{ github.event.inputs.custom_device_name }}*.zip)
           echo "file_path=${ZIP_FILE}" >> $GITHUB_OUTPUT
 
       - name: Delete Existing Release
@@ -123,14 +122,14 @@ jobs:
       - name: Generate Release Body
         id: generate_release_body
         run: |
-          BODY="Android 16 Framework Patcher for ${{ github.event.inputs.device_name }}
-          Version: ${{ github.event.inputs.version_name }}
-          Android API: ${{ github.event.inputs.api_level }}
+          BODY="Android 16 Framework Patcher for ${{ github.event.inputs.custom_device_name }}
+          Version: ${{ github.event.inputs.custom_version }}
+          Android API: ${{ github.event.inputs.android_api_level }}
 
           Sources:
-          - Framework: ${{ github.event.inputs.framework_url }}
-          - Services: ${{ github.event.inputs.services_url }}
-          - MIUI Services: ${{ github.event.inputs.miui_services_url }}
+          - Framework: ${{ github.event.inputs.framework_jar_url }}
+          - Services: ${{ github.event.inputs.services_jar_url }}
+          - MIUI Services: ${{ github.event.inputs.miui_services_jar_url }}
 
           Build date: $(date +'%Y-%m-%d')
           Build time: $(date +'%H:%M:%S UTC')"
@@ -148,6 +147,9 @@ jobs:
           name: ${{ steps.release_info.outputs.name }}
           files: ${{ steps.find_zip.outputs.file_path }}
           body: ${{ steps.generate_release_body.outputs.release_body }}
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
 
       - name: Upload patched jars
         uses: actions/upload-artifact@v4
@@ -159,15 +161,3 @@ jobs:
             services_patched.jar
             miui-services_patched.jar
           retention-days: 7
-
-      - name: Upload Magisk module zip
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: android16-magisk-module-${{ github.run_id }}
-          if-no-files-found: warn
-          path: Framework-Patcher-${{ github.event.inputs.device_name }}-*.zip
-          retention-days: 7
-        makeLatest: true
-        bodyFile: release_notes.txt
-        token: ${{ secrets.GITHUB_TOKEN }}
