@@ -123,8 +123,8 @@ patchForm.addEventListener('submit', async function(e) {
     };
 
     try {
-        // Vercel backend adresini gir veya /api/trigger-patch kullan
-        const response = await fetch("/api/trigger-patch", {
+        // Artık tam Vercel API adresiyle fetch!
+        const response = await fetch("https://a16-framework-patcher.vercel.app/api/trigger-patch", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(inputs)
