@@ -1,1 +1,12 @@
-{"name":"A16-FrameworkPatcher","version":"1.0.0","description":"Framework patcher web integration","main":"web/trigger-patch.js","scripts":{"start":"node web/trigger-patch.js"},"dependencies":{"octokit":"^2.0.0"}}
+{
+  "name": "A16-FrameworkPatcher",
+  "version": "1.0.0",
+  "description": "Framework patcher web integration",
+  "main": "web/trigger-patch.js",
+  "scripts": {
+    "start": "node web/trigger-patch.js"
+  },
+  "dependencies": {
+    "octokit": "^2.0.0"
+  }
+}
