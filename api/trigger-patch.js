@@ -1,52 +1,46 @@
 module.exports = async (req, res) => {
-  // CORS headers ekle
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Preflight (OPTIONS) isteğine yanıt ver
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
-  // Sadece POST isteği kabul edilsin
   if (req.method !== 'POST') {
     res.status(405).json({ message: 'Method Not Allowed' });
     return;
   }
 
-  // GITHUB_TOKEN ortam değişkeni kontrolü
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   if (!GITHUB_TOKEN) {
     res.status(500).json({ message: 'GitHub token not set in environment.' });
     return;
   }
 
-  // Gönderilen datayı al
+  // GÖNDERİLEN input anahtarlarını workflow ile birebir al!
   const {
-    frameworkJarUrl,
-    servicesJarUrl,
-    miuiServicesJarUrl,
-    androidApiLevel,
-    customDeviceName,
-    customVersion
+    framework_jar_url,
+    services_jar_url,
+    miui_services_jar_url,
+    android_api_level,
+    custom_device_name,
+    custom_version
   } = req.body;
 
-  // Zorunlu alanlar kontrolü
   if (
-    !frameworkJarUrl ||
-    !servicesJarUrl ||
-    !miuiServicesJarUrl ||
-    !androidApiLevel ||
-    !customDeviceName ||
-    !customVersion
+    !framework_jar_url ||
+    !services_jar_url ||
+    !miui_services_jar_url ||
+    !android_api_level ||
+    !custom_device_name ||
+    !custom_version
   ) {
     res.status(400).json({ message: 'Eksik veri, lütfen tüm alanları doldurun.' });
     return;
   }
 
-  // Github Actions workflow tetikleme
   const owner = 'aurora9331';
   const repo = 'A16-FrameworkPatcher';
   const workflow_id = 'patcher.yml';
@@ -64,12 +58,12 @@ module.exports = async (req, res) => {
         body: JSON.stringify({
           ref: 'main',
           inputs: {
-            frameworkJarUrl,
-            servicesJarUrl,
-            miuiServicesJarUrl,
-            androidApiLevel,
-            customDeviceName,
-            customVersion
+            framework_jar_url,
+            services_jar_url,
+            miui_services_jar_url,
+            android_api_level,
+            custom_device_name,
+            custom_version
           }
         })
       }
