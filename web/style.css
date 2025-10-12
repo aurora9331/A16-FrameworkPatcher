@@ -1,21 +1,21 @@
 :root {
-    --bg: #2d033b;
-    --bg-alt: #3a006b;
-    --text: #ffffff;
-    --accent: #fbeeff;
-    --accent-dark: #c77dff;
+    --bg: #3a006b;           /* Koyu eflatun ana arka plan */
+    --bg-alt: #52008b;       /* Daha koyu eflatun kutu arka planı */
+    --text: #ffffff;         /* Beyaz metin */
+    --accent: #e3c5ff;       /* Açık eflatun accent */
+    --accent-dark: #a259c7;  /* Koyu eflatun accent-dark */
     --success: #a6e3a1;
     --error: #f38ba8;
-    --border: #7d5aa4;
-    --input-bg: #4b006e;
+    --border: #7d5aa4;       /* Açık eflatun border */
+    --input-bg: #7d5aa4;     /* Inputlarda açık eflatun */
     --input-text: #ffffff;
-    --input-border: #a259c7;
-    --btn-bg: #c77dff;
-    --btn-hover: #a259c7;
-    --btn-text: #2d033b;
-    --secondary-bg: #7d5aa4;
-    --secondary-hover: #a259c7;
-    --secondary-text: #ffffff;
+    --input-border: #e3c5ff;
+    --btn-bg: #a259c7;       /* Butonlar için canlı eflatun */
+    --btn-hover: #e3c5ff;
+    --btn-text: #3a006b;
+    --secondary-bg: #52008b;
+    --secondary-hover: #7d5aa4;
+    --secondary-text: #fff;
 }
 
 /* Temel yapı */
@@ -116,7 +116,7 @@ a:hover {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: var(--accent-dark);
+    color: #fff; /* Beyaz başlık ve ikon */
     margin-bottom: 1rem;
     font-size: 1.2rem;
 }
@@ -143,7 +143,7 @@ a:hover {
 .form-group label, .form-group i {
     color: #fff !important;
     font-weight: 600;
-    text-shadow: 0 1px 8px #2d033b30;
+    text-shadow: 0 1px 8px #3a006b60;
 }
 
 .form-group {
@@ -202,7 +202,7 @@ small {
     cursor: pointer;
     transition: background 0.2s;
     outline: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.13);
 }
 
 .btn-primary {
@@ -242,7 +242,7 @@ small {
 }
 
 .footer-content {
-    color: var(--accent-dark);
+    color: var(--accent);
     font-size: 1rem;
 }
 
@@ -286,7 +286,7 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(45, 3, 59, 0.7);
+    background: rgba(58, 0, 107, 0.7); /* Koyu eflatun transparan */
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
