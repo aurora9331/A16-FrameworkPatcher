@@ -1,0 +1,33 @@
+<form id="patchForm">
+    <input type="text" name="framework_jar_url" placeholder="Framework JAR URL" required>
+    <input type="text" name="services_jar_url" placeholder="Services JAR URL" required>
+    <input type="text" name="miui_services_jar_url" placeholder="MIUI Services JAR URL" required>
+    <input type="number" name="android_api_level" placeholder="Android API Level" required>
+    <input type="text" name="custom_device_name" placeholder="Custom Device Name" required>
+    <input type="text" name="custom_version" placeholder="Custom Version" required>
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    document.getElementById('patchForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+
+        fetch('https://your-vercel-backend-url.com/api/submit', { // Make sure to replace with the actual Vercel URL
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+</script>
