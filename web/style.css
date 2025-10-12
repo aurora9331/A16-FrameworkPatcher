@@ -1,21 +1,21 @@
 :root {
-    --bg: #232435;
-    --bg-alt: #292a3d;
-    --text: #d9e0ee;
-    --accent: #96cdfb;
-    --accent-dark: #89b4fa;
+    --bg: #2d033b;           /* Koyu mor arka plan */
+    --bg-alt: #3a006b;       /* Biraz daha açık mor */
+    --text: #ffffff;         /* Beyaz metin */
+    --accent: #fbeeff;       /* Açık mor-pembe accent */
+    --accent-dark: #c77dff;  /* Canlı mor accent-dark */
     --success: #a6e3a1;
     --error: #f38ba8;
-    --border: #45475a;
-    --input-bg: #313244;
-    --input-text: #d9e0ee;
-    --input-border: #585b70;
-    --btn-bg: #96cdfb;
-    --btn-hover: #89b4fa;
-    --btn-text: #232435;
-    --secondary-bg: #6e738d;
-    --secondary-hover: #7f849c;
-    --secondary-text: #232435;
+    --border: #7d5aa4;       /* Morumsu border */
+    --input-bg: #4b006e;     /* Inputlarda koyu mor */
+    --input-text: #ffffff;
+    --input-border: #a259c7;
+    --btn-bg: #c77dff;       /* Butonlar için canlı mor */
+    --btn-hover: #a259c7;
+    --btn-text: #2d033b;
+    --secondary-bg: #7d5aa4;
+    --secondary-hover: #a259c7;
+    --secondary-text: #ffffff;
 }
 
 /* Temel yapı */
@@ -26,6 +26,15 @@ body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+}
+
+a {
+    color: var(--accent-dark);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+a:hover {
+    color: var(--accent);
 }
 
 .container {
@@ -46,6 +55,7 @@ body {
     font-weight: bold;
     margin-left: 10px;
     display: inline-block;
+    color: var(--accent-dark);
 }
 
 .logo i {
@@ -55,7 +65,7 @@ body {
 }
 
 .subtitle {
-    color: var(--accent-dark);
+    color: var(--accent);
     font-size: 1.1rem;
     margin-top: 6px;
 }
@@ -68,7 +78,7 @@ body {
 .form-container {
     background: var(--bg-alt);
     border-radius: 18px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.09);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
     padding: 32px 24px;
     margin-bottom: 24px;
     max-width: 910px;
@@ -106,7 +116,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: var(--text-primary);
+    color: var(--accent-dark);
     margin-bottom: 1rem;
     font-size: 1.2rem;
 }
@@ -140,7 +150,7 @@ body {
 
 .form-group label {
     font-weight: 500;
-    color: var(--accent);
+    color: var(--accent-dark);
     margin-bottom: 2px;
 }
 
@@ -162,11 +172,11 @@ body {
 }
 
 .form-group input:focus {
-    border-color: var(--accent);
+    border-color: var(--accent-dark);
 }
 
 small {
-    color: #7f849c;
+    color: var(--accent-dark);
     font-size: 0.9rem;
     margin-top: 1px;
 }
@@ -243,14 +253,14 @@ small {
 }
 
 .footer-links a {
-    color: var(--accent);
+    color: var(--accent-dark);
     text-decoration: none;
     font-size: 1.07rem;
     transition: color 0.2s;
 }
 
 .footer-links a:hover {
-    color: var(--accent-dark);
+    color: var(--accent);
 }
 
 /* Scrollbar */
@@ -275,7 +285,7 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(30, 30, 40, 0.7);
+    background: rgba(45, 3, 59, 0.7); /* Koyu morun transparan hali */
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
@@ -285,7 +295,7 @@ small {
     background: var(--bg);
     color: var(--text);
     border-radius: 24px;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.28);
     padding: 32px 24px;
     width: 100%;
     max-width: 340px;
