@@ -1,18 +1,18 @@
 :root {
-    --bg: #235566;           /* Daha koyu ana arka plan */
-    --bg-alt: #1a3a47;       /* Daha koyu kutu arka plan */
-    --text: #ffffff;         /* Beyaz metin */
-    --accent: #60b0c9;       /* Turkuaz accent */
-    --accent-dark: #4fa1bb;  /* Biraz koyu turkuaz accent-dark */
+    --bg: #235566;
+    --bg-alt: #1a3a47;
+    --text: #ffffff;
+    --accent: #60b0c9;
+    --accent-dark: #4fa1bb;
     --success: #7be1c7;
     --error: #f38ba8;
-    --border: #23617a;       /* Koyu mavi border */
-    --input-bg: #23617a;     /* Inputlarda koyu mavi */
+    --border: #23617a;
+    --input-bg: #23617a;
     --input-text: #ffffff;
     --input-border: #4fa1bb;
-    --btn-bg: #60b0c9;       /* Butonlar için accent */
-    --btn-hover: #3689a1;    /* Buton hover ana renk */
-    --btn-text: #fff;        /* Buton yazısı beyaz */
+    --btn-bg: #1a3a47;      /* Buton koyu */
+    --btn-hover: #23617a;
+    --btn-text: #fff;
     --secondary-bg: #1a3a47;
     --secondary-hover: #23617a;
     --secondary-text: #fff;
@@ -45,6 +45,13 @@ a:hover {
 }
 
 /* Header Styles */
+.header,
+.header .logo i,
+.header h1,
+.header .subtitle {
+    color: #fff !important; /* Başlık ve ikonlar beyaz */
+}
+
 .header {
     padding: 32px 0 8px 0;
     text-align: center;
@@ -55,17 +62,14 @@ a:hover {
     font-weight: bold;
     margin-left: 10px;
     display: inline-block;
-    color: var(--accent);
 }
 
 .logo i {
     font-size: 2rem;
-    color: var(--accent-dark);
     vertical-align: middle;
 }
 
 .subtitle {
-    color: var(--accent);
     font-size: 1.1rem;
     margin-top: 6px;
 }
@@ -116,7 +120,7 @@ a:hover {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: #fff; /* Beyaz başlık ve ikon */
+    color: #fff !important;
     margin-bottom: 1rem;
     font-size: 1.2rem;
 }
@@ -127,7 +131,7 @@ a:hover {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: var(--accent);
+    color: #fff !important;
     font-size: 1.4rem;
     font-weight: bold;
 }
@@ -191,12 +195,13 @@ small {
     box-sizing: border-box;
 }
 
+/* Butonlar */
 .btn, .btn-primary, .btn-action {
-    color: #fff !important; /* Buton yazısı beyaz */
+    background: var(--btn-bg) !important;
+    color: #fff !important;
 }
 
 .btn {
-    background: var(--btn-bg);
     border: none;
     border-radius: 8px;
     padding: 8px 24px;
@@ -208,12 +213,9 @@ small {
     box-shadow: 0 2px 6px rgba(0,0,0,0.13);
 }
 
-.btn-primary {
-    background: var(--btn-bg);
-}
-
-.btn-primary:hover {
-    background: var(--btn-hover);
+.btn-primary:hover,
+.btn-action:hover {
+    background: var(--btn-hover) !important;
 }
 
 .btn-secondary {
@@ -225,20 +227,12 @@ small {
     background: var(--secondary-hover);
 }
 
-.btn-action {
-    background: var(--accent-dark);
-}
-
-.btn-action:hover {
-    background: var(--accent);
-}
-
 /* Footer Styles */
 .footer {
     margin-top: 32px;
     padding: 18px 0;
     text-align: center;
-    background: #18333e; /* Daha koyu footer arka plan */
+    background: #18333e;
     border-radius: 16px 16px 0 0;
 }
 
@@ -287,14 +281,14 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(35, 85, 102, 0.7); /* Koyu mavi transparan */
+    background: rgba(35, 85, 102, 0.7);
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
     display: flex !important;
 }
 .modal-content {
-    background: #18333e; /* Daha koyu modal arka plan */
+    background: #18333e;
     color: var(--text);
     border-radius: 24px;
     box-shadow: 0 4px 32px rgba(0,0,0,0.18);
