@@ -1,20 +1,20 @@
 :root {
-    --bg: #235566;
-    --bg-alt: #1a3a47;
-    --text: #ffffff;
-    --accent: #60b0c9;
-    --accent-dark: #4fa1bb;
-    --success: #7be1c7;
-    --error: #f38ba8;
-    --border: #23617a;
-    --input-bg: #23617a;
+    --bg: #484ca6;           /* Koyu lavanta ana arka plan */
+    --bg-alt: #393c7a;       /* Kutu ve alt arka plan, daha koyu */
+    --text: #ffffff;         /* Beyaz metin */
+    --accent: #6c70be;       /* Orta koyu accent */
+    --accent-dark: #393c7a;  /* Koyu accent-dark */
+    --success: #8cdbb1;      /* Canlı yeşil (değişmedi) */
+    --error: #e56b8b;
+    --border: #5a5ea2;       /* Border için koyu lavanta */
+    --input-bg: #5a5ea2;     /* Inputlarda koyu lavanta */
     --input-text: #ffffff;
-    --input-border: #4fa1bb;
-    --btn-bg: #1a3a47;      /* Buton koyu */
-    --btn-hover: #23617a;
-    --btn-text: #fff;
-    --secondary-bg: #1a3a47;
-    --secondary-hover: #23617a;
+    --input-border: #6c70be;
+    --btn-bg: #393c7a;       /* Butonlar koyu */
+    --btn-hover: #484ca6;    /* Buton hover ana renk */
+    --btn-text: #fff;        /* Buton yazısı beyaz */
+    --secondary-bg: #393c7a;
+    --secondary-hover: #484ca6;
     --secondary-text: #fff;
 }
 
@@ -49,7 +49,7 @@ a:hover {
 .header .logo i,
 .header h1,
 .header .subtitle {
-    color: #fff !important; /* Başlık ve ikonlar beyaz */
+    color: #fff !important;
 }
 
 .header {
@@ -143,11 +143,10 @@ a:hover {
     margin-bottom: 18px;
 }
 
-/* BAŞLIK VE İKONLAR BEYAZ, DAHA NET */
 .form-group label, .form-group i {
     color: #fff !important;
     font-weight: 600;
-    text-shadow: 0 1px 8px #23556670;
+    text-shadow: 0 1px 8px #393c7a70;
 }
 
 .form-group {
@@ -176,6 +175,10 @@ a:hover {
     box-sizing: border-box;
 }
 
+input::placeholder {
+    color: transparent !important;
+}
+
 .form-group input:focus {
     border-color: var(--accent);
 }
@@ -195,7 +198,6 @@ small {
     box-sizing: border-box;
 }
 
-/* Butonlar */
 .btn, .btn-primary, .btn-action {
     background: var(--btn-bg) !important;
     color: #fff !important;
@@ -232,12 +234,12 @@ small {
     margin-top: 32px;
     padding: 18px 0;
     text-align: center;
-    background: #18333e;
+    background: #393c7a;
     border-radius: 16px 16px 0 0;
 }
 
 .footer-content {
-    color: var(--accent-dark);
+    color: var(--accent);
     font-size: 1rem;
 }
 
@@ -281,14 +283,14 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(35, 85, 102, 0.7);
+    background: rgba(72, 76, 166, 0.7); /* Koyu lavanta transparan */
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
     display: flex !important;
 }
 .modal-content {
-    background: #18333e;
+    background: #393c7a;
     color: var(--text);
     border-radius: 24px;
     box-shadow: 0 4px 32px rgba(0,0,0,0.18);
