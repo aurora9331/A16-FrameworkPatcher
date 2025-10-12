@@ -71,6 +71,7 @@
             <h3 id="modalTitle">İşlem Yapılıyor...</h3>
             <p id="modalMessage"></p>
             <button class="btn btn-secondary" id="modalClose" style="display:none;">Kapat</button>
+            <button class="btn btn-action" id="modalWorkflow" style="display:none;">İş Akışını Gör</button>
         </div>
     </div>
     <footer class="footer">
@@ -92,6 +93,7 @@ const modalLoading = document.getElementById('modalLoading');
 const modalSuccess = document.getElementById('modalSuccess');
 const modalError = document.getElementById('modalError');
 const modalClose = document.getElementById('modalClose');
+const modalWorkflow = document.getElementById('modalWorkflow');
 
 patchForm.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -102,8 +104,8 @@ patchForm.addEventListener('submit', async function(e) {
     modalSuccess.style.display = 'none';
     modalError.style.display = 'none';
     modalClose.style.display = 'none';
+    modalWorkflow.style.display = 'none';
 
-    // Tüm inputları workflow ile birebir anahtar isimleriyle al
     const formData = new FormData(patchForm);
     const inputs = Object.fromEntries(formData);
 
@@ -120,10 +122,12 @@ patchForm.addEventListener('submit', async function(e) {
             modalSuccess.style.display = 'inline-block';
             modalTitle.textContent = 'Başarılı!';
             modalMessage.textContent = result.message || 'Patchleme iş akışı başarıyla başlatıldı.';
+            modalWorkflow.style.display = 'inline-block';
         } else {
             modalError.style.display = 'inline-block';
             modalTitle.textContent = 'Hata!';
             modalMessage.textContent = result.message || 'Patchleme başlatılamadı.' + (result.error ? ' (' + JSON.stringify(result.error) + ')' : '');
+            modalWorkflow.style.display = 'none';
         }
         modalClose.style.display = 'inline-block';
     } catch (err) {
@@ -132,12 +136,17 @@ patchForm.addEventListener('submit', async function(e) {
         modalTitle.textContent = 'Bağlantı Hatası!';
         modalMessage.textContent = err.message || 'Patchleme başlatılamadı.';
         modalClose.style.display = 'inline-block';
+        modalWorkflow.style.display = 'none';
     }
 });
 
 modalClose.addEventListener('click', function() {
     modal.style.display = 'none';
 });
+
+modalWorkflow.onclick = function() {
+    window.open('https://github.com/aurora9331/A16-FrameworkPatcher/actions', '_blank');
+};
 </script>
 </body>
 </html>
