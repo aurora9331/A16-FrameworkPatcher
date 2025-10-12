@@ -1,21 +1,21 @@
 :root {
-    --bg: #102313;           /* Çok koyu yeşil ana arka plan */
-    --bg-alt: #142c1b;       /* Kutu ve alt arka plan, ekstra koyu yeşil */
-    --text: #e9ffe2;         /* Açık yeşil-beyaz metin */
-    --accent: #235d36;       /* Koyu accent yeşil */
-    --accent-dark: #183c24;  /* Çok koyu accent */
-    --success: #6ad892;
+    --bg: #0a1328;           /* Çok koyu mavi ana arka plan */
+    --bg-alt: #122146;       /* Kutu ve alt arka plan, ekstra koyu mavi */
+    --text: #dbeafe;         /* Açık mavi-beyaz metin */
+    --accent: #3355a8;       /* Koyu accent mavi */
+    --accent-dark: #1b2a4b;  /* Çok koyu accent */
+    --success: #6ad8db;
     --error: #e56b8b;
-    --border: #183c24;
-    --input-bg: #183c24;
-    --input-text: #e9ffe2;
-    --input-border: #235d36;
-    --btn-bg: #142c1b;
-    --btn-hover: #102313;
-    --btn-text: #e9ffe2;
-    --secondary-bg: #142c1b;
-    --secondary-hover: #183c24;
-    --secondary-text: #e9ffe2;
+    --border: #1b2a4b;
+    --input-bg: #1b2a4b;
+    --input-text: #dbeafe;
+    --input-border: #3355a8;
+    --btn-bg: #122146;
+    --btn-hover: #0a1328;
+    --btn-text: #dbeafe;
+    --secondary-bg: #122146;
+    --secondary-hover: #1b2a4b;
+    --secondary-text: #dbeafe;
 }
 
 /* Temel yapı */
@@ -184,8 +184,8 @@ a:hover {
 }
 
 input[readonly] {
-    background-color: #183c24;
-    color: #92bfa2;
+    background-color: #1b2a4b;
+    color: #a3bffa;
     cursor: not-allowed;
 }
 
@@ -294,7 +294,7 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(16, 35, 19, 0.7); /* Koyu yeşil şeffaf modal arka plan */
+    background: rgba(10, 19, 40, 0.7); /* Koyu mavi şeffaf modal arka plan */
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
