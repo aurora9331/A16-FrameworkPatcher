@@ -64,10 +64,22 @@ jobs:
             "${{ github.event.inputs.custom_version }}" \
             --framework --services --miui-services
 
+      - name: Prepare release directories
+        run: |
+          mkdir -p system/system/framework
+          mkdir -p system_ext/framework
+          cp framework.jar system/system/framework/framework.jar
+          cp services.jar system/system/framework/services.jar
+          cp miui-services.jar system_ext/framework/miui-services.jar
+
+      - name: Create ZIP for release
+        run: |
+          zip -r Framework-Patcher-${{ github.event.inputs.custom_device_name }}-${{ github.event.inputs.custom_version }}.zip system system_ext
+
       - name: List generated artifacts
         run: |
           echo "Generated files:"
-          ls -R | grep -E 'patched\\.jar$|Framework-Patcher-'
+          ls -R | grep -E 'framework\\.jar$|services\\.jar$|miui-services\\.jar$|Framework-Patcher-'
 
       - name: Set Release Info
         id: release_info
@@ -150,14 +162,3 @@ jobs:
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
-
-      - name: Upload patched jars
-        uses: actions/upload-artifact@v4
-        with:
-          name: android16-patched-jars-${{ github.run_id }}
-          if-no-files-found: warn
-          path: |
-            framework_patched.jar
-            services_patched.jar
-            miui-services_patched.jar
-          retention-days: 7
