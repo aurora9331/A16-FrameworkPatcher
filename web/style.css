@@ -25,14 +25,17 @@ body {
     font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
 }
 
 .container {
-    max-width: 540px;
+    max-width: 100vw;
     margin: 0 auto;
     padding: 0 12px;
+    box-sizing: border-box;
 }
 
+/* Header Styles */
 .header {
     padding: 32px 0 8px 0;
     text-align: center;
@@ -61,14 +64,38 @@ body {
     margin-top: 18px;
 }
 
+/* Form Container - Arkaplan ve ortalama ayarı */
 .form-container {
     background: var(--bg-alt);
     border-radius: 18px;
     box-shadow: 0 2px 16px rgba(0,0,0,0.09);
-    padding: 16px;
+    padding: 32px 24px;
     margin-bottom: 24px;
+    max-width: 600px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
+/* Grid ayarı, responsive */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 700px) {
+    .form-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .jar-urls .form-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Form grup ve input ayarları */
 .form-header h2 {
     margin: 0;
     color: var(--accent);
@@ -105,25 +132,21 @@ body {
     font-size: 1rem;
     outline: none;
     margin-bottom: 3px;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: break-word;
 }
 
 .form-group input:focus {
     border-color: var(--accent);
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-}
-
-@media (min-width: 520px) {
-    .form-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-    .jar-urls .form-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
+small {
+    color: #7f849c;
+    font-size: 0.9rem;
+    margin-top: 1px;
 }
 
 .form-actions {
@@ -174,12 +197,7 @@ body {
     background: var(--accent);
 }
 
-small {
-    color: #7f849c;
-    font-size: 0.9rem;
-    margin-top: 1px;
-}
-
+/* Footer Styles */
 .footer {
     margin-top: 32px;
     padding: 18px 0;
@@ -211,6 +229,7 @@ small {
     color: var(--accent-dark);
 }
 
+/* Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
     background: var(--bg-alt);
@@ -235,11 +254,9 @@ small {
     background: rgba(30, 30, 40, 0.7);
     z-index: 1000;
 }
-
 .modal[style*="display: flex"] {
     display: flex !important;
 }
-
 .modal-content {
     background: var(--bg);
     color: var(--text);
