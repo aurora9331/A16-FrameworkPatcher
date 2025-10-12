@@ -1,13 +1,29 @@
-const { Octokit } = require("octokit");
-
 module.exports = async (req, res) => {
-  // Sadece POST isteklerini kabul et
-  if (req.method !== "POST") {
-    res.status(405).json({ message: "Method Not Allowed" });
+  // CORS headers ekle
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Preflight (OPTIONS) isteğine yanıt ver
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
     return;
   }
 
-  // Bilgileri body'den al
+  // Sadece POST isteği kabul edilsin
+  if (req.method !== 'POST') {
+    res.status(405).json({ message: 'Method Not Allowed' });
+    return;
+  }
+
+  // GITHUB_TOKEN ortam değişkeni kontrolü
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  if (!GITHUB_TOKEN) {
+    res.status(500).json({ message: 'GitHub token not set in environment.' });
+    return;
+  }
+
+  // Gönderilen datayı al
   const {
     frameworkJarUrl,
     servicesJarUrl,
@@ -17,30 +33,56 @@ module.exports = async (req, res) => {
     customVersion
   } = req.body;
 
-  // Token'ı Vercel ortam değişkeninden al
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-
-  if (!GITHUB_TOKEN) {
-    res.status(500).json({ message: "GitHub token not set in environment." });
+  // Zorunlu alanlar kontrolü
+  if (
+    !frameworkJarUrl ||
+    !servicesJarUrl ||
+    !miuiServicesJarUrl ||
+    !androidApiLevel ||
+    !customDeviceName ||
+    !customVersion
+  ) {
+    res.status(400).json({ message: 'Eksik veri, lütfen tüm alanları doldurun.' });
     return;
   }
 
-  const octokit = new Octokit({ auth: GITHUB_TOKEN });
+  // Github Actions workflow tetikleme
+  const owner = 'aurora9331';
+  const repo = 'A16-FrameworkPatcher';
+  const workflow_id = 'patcher.yml';
 
   try {
-    await octokit.request('POST /repos/aurora9331/A16-FrameworkPatcher/actions/workflows/patcher.yml/dispatches', {
-      ref: "main",
-      inputs: {
-        framework_jar_url: frameworkJarUrl,
-        services_jar_url: servicesJarUrl,
-        miui_services_jar_url: miuiServicesJarUrl,
-        android_api_level: androidApiLevel,
-        custom_device_name: customDeviceName,
-        custom_version: customVersion
+    const response = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflow_id}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ref: 'main',
+          inputs: {
+            frameworkJarUrl,
+            servicesJarUrl,
+            miuiServicesJarUrl,
+            androidApiLevel,
+            customDeviceName,
+            customVersion
+          }
+        })
       }
-    });
-    res.status(200).json({ message: "Patchleme başarılı şekilde başlatıldı!" });
-  } catch (error) {
-    res.status(500).json({ message: "Hata oluştu: " + error.message });
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      res.status(500).json({ message: 'GitHub Actions tetiklenemedi.', error });
+      return;
+    }
+
+    res.status(200).json({ message: 'Patchleme iş akışı başarıyla başlatıldı!' });
+  } catch (err) {
+    res.status(500).json({ message: 'İç sunucu hatası.', error: err.message });
   }
 };
