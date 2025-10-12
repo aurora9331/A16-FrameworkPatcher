@@ -1,49 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Framework Patcher - Android 16</title>
-    <link href="styles.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Android 16 Framework Patcher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
 <div class="container">
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-mobile-alt"></i>
-                <h1>Framework Patcher</h1>
-            </div>
-            <p class="subtitle">Android 16 için Framework JAR patchleme</p>
-        </div>
+    <header>
+        <h1>Android 16 Framework Patcher</h1>
     </header>
-    <main class="main-content">
-        <div class="form-container active" id="android16-form">
-            <div class="form-header">
-                <h2><i class="fas fa-cog"></i> Android 16 Framework Patcher</h2>
-                <p>Android 16 patchleme işlemini yapılandır ve başlat</p>
-            </div>
-            <!-- PATCHER.YML ile uyumlu inputlar -->
-            <form class="patcher-form" id="a16-form">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="framework_jar_url"><i class="fas fa-file-archive"></i> Framework.jar URL</label>
-                        <input id="framework_jar_url" name="framework_jar_url" placeholder="https://example.com/framework.jar" required type="url">
-                    </div>
-                    <div class="form-group">
-                        <label for="services_jar_url"><i class="fas fa-file-archive"></i> Services.jar URL</label>
-                        <input id="services_jar_url" name="services_jar_url" placeholder="https://example.com/services.jar" required type="url">
-                    </div>
-                    <div class="form-group">
-                        <label for="miui_services_jar_url"><i class="fas fa-file-archive"></i> MIUI Services.jar URL</label>
-                        <input id="miui_services_jar_url" name="miui_services_jar_url" placeholder="https://example.com/miui-services.jar" required type="url">
-                    </div>
-                    <div class="form-group">
-                        <label for="android_api_level"><i class="fas fa-code"></i> Android API Seviyesi</label>
-                        <input id="android_api_level" name="android_api_level" value="36" required type="text">
-                    </div>
+    <main>
+        <div class="card">
+            <form id="a16-form">
+                <div class="form-fields">
                     <div class="form-group">
                         <label for="custom_device_name"><i class="fas fa-mobile-alt"></i> Özel Cihaz Adı</label>
                         <input id="custom_device_name" name="custom_device_name" placeholder="örn: rothko" required type="text">
@@ -84,9 +56,12 @@
         <div class="success-icon"><i class="fas fa-check-circle"></i></div>
         <h3>İşlem Başarıyla Başlatıldı!</h3>
         <p>Framework patchleme iş akışı başlatıldı. GitHub Actions sekmesinden kontrol edebilirsiniz.</p>
-        <button class="btn btn-primary" type="button" onclick="closeModal('success-modal'); setTimeout(function(){ window.open('https://github.com/aurora9331/A16-FrameworkPatcher/actions/workflows/patcher.yml', '_blank'); },500);">
-            <i class="fas fa-external-link-alt"></i> İş Akışını Gör
-        </button>
+        <!-- Ortalanmış buton için kapsayıcı eklendi -->
+        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 16px;">
+            <button class="btn btn-primary" type="button" onclick="closeModal('success-modal'); setTimeout(function(){ window.open('https://github.com/aurora9331/A16-FrameworkPatcher/actions/workflows/patcher.yml', '_blank'); },500);">
+                <i class="fas fa-external-link-alt"></i> İş Akışını Gör
+            </button>
+        </div>
     </div>
 </div>
 <!-- Error Modal -->
