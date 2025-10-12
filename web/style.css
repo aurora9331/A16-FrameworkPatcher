@@ -71,7 +71,7 @@ body {
     box-shadow: 0 2px 16px rgba(0,0,0,0.09);
     padding: 32px 24px;
     margin-bottom: 24px;
-    max-width: 910px; /* Genişlik artırıldı ve grid ile tam uyumlu */
+    max-width: 910px;
     width: 100%;
     margin-left: auto;
     margin-right: auto;
@@ -100,13 +100,29 @@ body {
     }
 }
 
-/* Form grup ve input ayarları */
-.form-header h2 {
-    margin: 0;
-    color: var(--accent);
-    font-size: 1.4rem;
+/* Ortalı başlık ve ikon */
+.jar-urls h3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
 }
 
+/* Patchleme Başlat başlığı ortalı */
+.form-header h2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--accent);
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+/* Form grup ve input ayarları */
 .form-header p {
     color: var(--text);
     margin-top: 6px;
