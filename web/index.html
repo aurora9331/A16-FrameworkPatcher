@@ -2,77 +2,158 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Android 16 Framework Patcher</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Framework Patcher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Catppuccin Modern Dark Theme -->
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- FontAwesome İkonları -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1>Android 16 Framework Patcher</h1>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fa-solid fa-cube"></i>
+                <h1>Framework Patcher</h1>
+            </div>
+            <p class="subtitle">Android Framework dosyaları için kolay ve güvenli patchleme aracı.</p>
+        </div>
     </header>
-    <main>
-        <div class="card">
-            <form id="a16-form">
-                <div class="form-fields">
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Form -->
+        <div class="form-container active">
+            <div class="form-header">
+                <h2><i class="fa-solid fa-wrench"></i> Patchleme Başlat</h2>
+                <p>Gerekli alanları doldur ve patchlemeyi başlat!</p>
+            </div>
+            <form class="patcher-form" id="patchForm">
+                <div class="jar-urls">
+                    <h3><i class="fa-solid fa-link"></i> JAR Dosya URL'leri</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="frameworkJarUrl"><i class="fa-solid fa-cubes"></i> framework.jar URL</label>
+                            <input type="url" id="frameworkJarUrl" name="frameworkJarUrl" placeholder="https://..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="servicesJarUrl"><i class="fa-solid fa-cogs"></i> services.jar URL</label>
+                            <input type="url" id="servicesJarUrl" name="servicesJarUrl" placeholder="https://..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="miuiServicesJarUrl"><i class="fa-brands fa-android"></i> miui-services.jar URL</label>
+                            <input type="url" id="miuiServicesJarUrl" name="miuiServicesJarUrl" placeholder="https://..." required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-grid">
                     <div class="form-group">
-                        <label for="custom_device_name"><i class="fas fa-mobile-alt"></i> Özel Cihaz Adı</label>
-                        <input id="custom_device_name" name="custom_device_name" placeholder="örn: rothko" required type="text">
+                        <label for="androidApiLevel"><i class="fa-solid fa-code"></i> Android API Seviyesi</label>
+                        <input type="number" id="androidApiLevel" name="androidApiLevel" placeholder="örn. 36" min="1" required>
+                        <small>Örn: 36</small>
                     </div>
                     <div class="form-group">
-                        <label for="custom_version"><i class="fas fa-tag"></i> Özel Sürüm</label>
-                        <input id="custom_version" name="custom_version" placeholder="örn: OS2.0.200.33" required type="text">
+                        <label for="customDeviceName"><i class="fa-solid fa-mobile-screen"></i> Özel Cihaz Adı</label>
+                        <input type="text" id="customDeviceName" name="customDeviceName" placeholder="örn. Redmi Note 12" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customVersion"><i class="fa-solid fa-tag"></i> Özel Sürüm</label>
+                        <input type="text" id="customVersion" name="customVersion" placeholder="örn. V14.0.1.0.TMCMIXM" required>
                     </div>
                 </div>
                 <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="clearForm('a16-form')" type="button"><i class="fas fa-eraser"></i> Formu Temizle</button>
-                    <button class="btn btn-primary" type="submit"><i class="fas fa-play"></i> Patchlemeyi Başlat</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-bolt"></i> Patchlemeyi Başlat</button>
                 </div>
             </form>
         </div>
     </main>
+    <!-- Modal (işlem sonucu için) -->
+    <div class="modal" id="modalResult">
+        <div class="modal-content">
+            <div class="loading-spinner" id="modalLoading"></div>
+            <i class="success-icon fa-solid fa-circle-check" id="modalSuccess" style="display:none;"></i>
+            <i class="error-icon fa-solid fa-circle-xmark" id="modalError" style="display:none;"></i>
+            <h3 id="modalTitle">İşlem Yapılıyor...</h3>
+            <p id="modalMessage"></p>
+            <button class="btn btn-secondary" id="modalClose" style="display:none;">Kapat</button>
+        </div>
+    </div>
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
-            <p>&copy; 2024 Framework Patcher. Android topluluğu için hazırlanmıştır.</p>
+            <p>Framework Patcher | <span style="color:var(--accent)">Catppuccin Dark</span> ile tasarlandı.</p>
             <div class="footer-links">
-                <a href="https://github.com/aurora9331/A16-FrameworkPatcher" target="_blank"><i class="fab fa-github"></i> GitHub</a>
-                <a href="https://buymeacoffee.com/jefino" target="_blank"><i class="fas fa-coffee"></i> Destekle</a>
+                <a href="https://github.com/aurora9331/A16-FrameworkPatcher" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+                <a href="https://catppuccin.com/" target="_blank"><i class="fa-solid fa-palette"></i> Catppuccin</a>
             </div>
         </div>
     </footer>
 </div>
-<!-- Loading Modal -->
-<div class="modal" id="loading-modal">
-    <div class="modal-content">
-        <div class="loading-spinner"></div>
-        <h3>Patchleme başlatılıyor...</h3>
-        <p>Lütfen bekleyin, işlem başlatılıyor.</p>
-    </div>
-</div>
-<!-- Success Modal -->
-<div class="modal" id="success-modal">
-    <div class="modal-content">
-        <div class="success-icon"><i class="fas fa-check-circle"></i></div>
-        <h3>İşlem Başarıyla Başlatıldı!</h3>
-        <p>Framework patchleme iş akışı başlatıldı. GitHub Actions sekmesinden kontrol edebilirsiniz.</p>
-        <!-- Ortalanmış buton için kapsayıcı eklendi -->
-        <div style="display: flex; justify-content: center; align-items: center; width: 100%; margin-top: 16px;">
-            <button class="btn btn-primary" type="button" onclick="closeModal('success-modal'); setTimeout(function(){ window.open('https://github.com/aurora9331/A16-FrameworkPatcher/actions/workflows/patcher.yml', '_blank'); },500);">
-                <i class="fas fa-external-link-alt"></i> İş Akışını Gör
-            </button>
-        </div>
-    </div>
-</div>
-<!-- Error Modal -->
-<div class="modal" id="error-modal">
-    <div class="modal-content">
-        <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-        <h3>Hata Oluştu</h3>
-        <p id="error-message">Bir şeyler yanlış gitti. Lütfen tekrar deneyin.</p>
-        <button class="btn btn-secondary" onclick="closeModal('error-modal')"><i class="fas fa-times"></i> Kapat</button>
-    </div>
-</div>
-<script src="script.js"></script>
+<!-- JavaScript for Modal and Patch Trigger -->
+<script>
+const patchForm = document.getElementById('patchForm');
+const modal = document.getElementById('modalResult');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessage = document.getElementById('modalMessage');
+const modalLoading = document.getElementById('modalLoading');
+const modalSuccess = document.getElementById('modalSuccess');
+const modalError = document.getElementById('modalError');
+const modalClose = document.getElementById('modalClose');
+
+patchForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    // Modalı göster, loading aktif
+    modal.style.display = 'flex';
+    modalTitle.textContent = 'İşlem Yapılıyor...';
+    modalMessage.textContent = 'Patchleme iş akışı başlatılıyor, lütfen bekleyin.';
+    modalLoading.style.display = 'block';
+    modalSuccess.style.display = 'none';
+    modalError.style.display = 'none';
+    modalClose.style.display = 'none';
+
+    // Formdan inputları al
+    const inputs = {
+        frameworkJarUrl: patchForm.frameworkJarUrl.value,
+        servicesJarUrl: patchForm.servicesJarUrl.value,
+        miuiServicesJarUrl: patchForm.miuiServicesJarUrl.value,
+        androidApiLevel: patchForm.androidApiLevel.value,
+        customDeviceName: patchForm.customDeviceName.value,
+        customVersion: patchForm.customVersion.value
+    };
+
+    try {
+        // Vercel backend adresini gir veya /api/trigger-patch kullan
+        const response = await fetch("/api/trigger-patch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(inputs)
+        });
+        const result = await response.json();
+
+        modalLoading.style.display = 'none';
+        if (response.ok) {
+            modalSuccess.style.display = 'inline-block';
+            modalTitle.textContent = 'Başarılı!';
+            modalMessage.textContent = result.message || 'Patchleme iş akışı başarıyla başlatıldı.';
+        } else {
+            modalError.style.display = 'inline-block';
+            modalTitle.textContent = 'Hata!';
+            modalMessage.textContent = result.message || 'Patchleme başlatılamadı.';
+        }
+        modalClose.style.display = 'inline-block';
+    } catch (err) {
+        modalLoading.style.display = 'none';
+        modalError.style.display = 'inline-block';
+        modalTitle.textContent = 'Bağlantı Hatası!';
+        modalMessage.textContent = err.message || 'Patchleme başlatılamadı.';
+        modalClose.style.display = 'inline-block';
+    }
+});
+
+modalClose.addEventListener('click', function() {
+    modal.style.display = 'none';
+});
+</script>
 </body>
 </html>
