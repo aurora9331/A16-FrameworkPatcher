@@ -1,17 +1,17 @@
 :root {
-    --bg: #2a2c5e;           /* En koyu lavanta/mor-mavi ana arka plan */
-    --bg-alt: #202143;       /* Kutu ve alt arka plan, daha koyu */
+    --bg: #2a2c5e;           /* Çok koyu lavanta/mor-mavi ana arka plan */
+    --bg-alt: #202143;       /* Kutu ve alt arka plan, ekstra koyu */
     --text: #ffffff;         /* Beyaz metin */
     --accent: #444687;       /* Koyu accent */
     --accent-dark: #292b54;  /* Daha koyu accent-dark */
     --success: #8cdbb1;
     --error: #e56b8b;
-    --border: #292b54;       /* Border için ekstra koyu */
-    --input-bg: #292b54;     /* Inputlarda ekstra koyu */
+    --border: #292b54;
+    --input-bg: #292b54;
     --input-text: #ffffff;
     --input-border: #444687;
-    --btn-bg: #202143;       /* Butonlar ve kutular aynı koyu */
-    --btn-hover: #2a2c5e;    /* Buton hover ana renk */
+    --btn-bg: #202143;
+    --btn-hover: #2a2c5e;
     --btn-text: #fff;
     --secondary-bg: #202143;
     --secondary-hover: #292b54;
@@ -238,9 +238,13 @@ small {
     border-radius: 16px 16px 0 0;
 }
 
-.footer-content {
-    color: var(--accent);
-    font-size: 1rem;
+.footer-content,
+.footer-links a,
+.footer-links a i {
+    color: #fff !important;
+    font-weight: 500;
+    text-shadow: 0 1px 8px #20214360;
+    font-size: 1.07rem;
 }
 
 .footer-links {
@@ -250,15 +254,8 @@ small {
     gap: 16px;
 }
 
-.footer-links a {
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 1.07rem;
-    transition: color 0.2s;
-}
-
 .footer-links a:hover {
-    color: var(--accent-dark);
+    color: var(--accent-dark) !important;
 }
 
 /* Scrollbar */
