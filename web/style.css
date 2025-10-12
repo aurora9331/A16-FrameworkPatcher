@@ -1,20 +1,20 @@
 :root {
-    --bg: #3689a1;           /* Ana arka plan */
-    --bg-alt: #2c6f85;       /* Alternatif koyu arka plan */
+    --bg: #235566;           /* Daha koyu ana arka plan */
+    --bg-alt: #1a3a47;       /* Daha koyu kutu arka plan */
     --text: #ffffff;         /* Beyaz metin */
     --accent: #60b0c9;       /* Turkuaz accent */
     --accent-dark: #4fa1bb;  /* Biraz koyu turkuaz accent-dark */
     --success: #7be1c7;
     --error: #f38ba8;
-    --border: #2c6f85;       /* Border için koyu ton */
-    --input-bg: #4fa1bb;     /* Inputlarda açık turkuaz */
+    --border: #23617a;       /* Koyu mavi border */
+    --input-bg: #23617a;     /* Inputlarda koyu mavi */
     --input-text: #ffffff;
-    --input-border: #60b0c9;
+    --input-border: #4fa1bb;
     --btn-bg: #60b0c9;       /* Butonlar için accent */
     --btn-hover: #3689a1;    /* Buton hover ana renk */
     --btn-text: #fff;        /* Buton yazısı beyaz */
-    --secondary-bg: #2c6f85;
-    --secondary-hover: #4fa1bb;
+    --secondary-bg: #1a3a47;
+    --secondary-hover: #23617a;
     --secondary-text: #fff;
 }
 
@@ -78,7 +78,7 @@ a:hover {
 .form-container {
     background: var(--bg-alt);
     border-radius: 18px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
     padding: 32px 24px;
     margin-bottom: 24px;
     max-width: 910px;
@@ -143,7 +143,7 @@ a:hover {
 .form-group label, .form-group i {
     color: #fff !important;
     font-weight: 600;
-    text-shadow: 0 1px 8px #3689a160;
+    text-shadow: 0 1px 8px #23556670;
 }
 
 .form-group {
@@ -238,7 +238,7 @@ small {
     margin-top: 32px;
     padding: 18px 0;
     text-align: center;
-    background: var(--bg-alt);
+    background: #18333e; /* Daha koyu footer arka plan */
     border-radius: 16px 16px 0 0;
 }
 
@@ -287,14 +287,14 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(54,137,161, 0.7); /* Ana rengin transparan hali */
+    background: rgba(35, 85, 102, 0.7); /* Koyu mavi transparan */
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
     display: flex !important;
 }
 .modal-content {
-    background: var(--bg);
+    background: #18333e; /* Daha koyu modal arka plan */
     color: var(--text);
     border-radius: 24px;
     box-shadow: 0 4px 32px rgba(0,0,0,0.18);
