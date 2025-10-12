@@ -24,224 +24,150 @@ on:
         required: true
 
 jobs:
-  build:
+  patch:
+    name: Android 16 Framework Patcher
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-      actions: write
-
     steps:
-    - name: Depoyu klonla
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Java Kur
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '11'
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Bağımlılıkları Yükle
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y openjdk-11-jdk zipalign p7zip-full python3 aria2 jq
-        pip install gdown
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full wget zip python3
 
-    - name: JAR Dosyalarını İndir ve Doğrula
-      run: |
-        curl -L -C - -o framework.jar "${{ github.event.inputs.framework_jar_url }}"
-        curl -L -C - -o services.jar "${{ github.event.inputs.services_jar_url }}"
-        curl -L -C - -o miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
-        for jar in framework.jar services.jar miui-services.jar; do
-          file_size=$(stat -c%s "$jar")
-          if [ $file_size -lt 2000000 ]; then
-            echo "Hata: $jar çok küçük. İndirme başarısız olabilir." >&2
-            exit 1
+      - name: Prepare tools directory
+        run: |
+          mkdir -p tools
+          if [ ! -f tools/apktool.jar ]; then
+            wget -O tools/apktool.jar https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar
           fi
-        done
 
-    - name: smali & baksmali (araçlarını) repodan kullan
-      run: |
-        cp ./tools/smali.jar .
-        cp ./tools/baksmali.jar .
+      - name: Download framework JARs
+        run: |
+          wget -O framework.jar "${{ github.event.inputs.framework_url }}"
+          wget -O services.jar "${{ github.event.inputs.services_url }}"
+          wget -O miui-services.jar "${{ github.event.inputs.miui_services_url }}"
 
-    - name: framework.jar Dosyasını Çıkart
-      run: 7z x framework.jar -oframework
+      - name: Run Android 16 patcher
+        run: |
+          chmod +x scripts/patcher_a16.sh
+          ./scripts/patcher_a16.sh \
+            "${{ github.event.inputs.api_level }}" \
+            "${{ github.event.inputs.device_name }}" \
+            "${{ github.event.inputs.version_name }}" \
+            --framework --services --miui-services
 
-    - name: services.jar Dosyasını Çıkart
-      run: 7z x services.jar -oservices
+      - name: List generated artifacts
+        run: |
+          echo "Generated files:"
+          ls -R | grep -E 'patched\.jar$|Framework-Patcher-'
 
-    - name: miui-services.jar Dosyasını Çıkart
-      run: 7z x miui-services.jar -omiui_services
+      - name: Set Release Info
+        id: release_info
+        run: |
+          # Format version name to be git tag friendly (replace spaces and dots with hyphens)
+          SAFE_VERSION=$(echo "${{ github.event.inputs.version_name }}" | sed 's/[. ]/-/g')
+          RELEASE_TAG="${{ github.event.inputs.device_name }}_${SAFE_VERSION}"
+          echo "tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
+          echo "name=Android 16 Framework Patch for ${{ github.event.inputs.device_name }} (${{ github.event.inputs.version_name }})" >> $GITHUB_OUTPUT
 
-    - name: framework dex dosyalarını decompile et (varsa)
-      run: |
-        if [ -f framework/classes.dex ]; then
-          java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} framework/classes.dex -o classes
-        else
-          echo "framework/classes.dex bulunamadı, decompile atlanıyor."
-        fi
-        for i in {2..5}; do
-          if [ -f "framework/classes${i}.dex" ]; then
-            java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} "framework/classes${i}.dex" -o "classes${i}"
-          else
-            echo "framework/classes${i}.dex bulunamadı, atlanıyor."
-          fi
-        done
+      - name: Find Module ZIP
+        id: find_zip
+        run: |
+          ZIP_FILE=$(ls Framework-Patcher-${{ github.event.inputs.device_name }}*.zip)
+          echo "file_path=${ZIP_FILE}" >> $GITHUB_OUTPUT
 
-    - name: services dex dosyalarını decompile et (varsa)
-      run: |
-        if [ -f services/classes.dex ]; then
-          java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} services/classes.dex -o services_classes
-        else
-          echo "services/classes.dex bulunamadı, decompile atlanıyor."
-        fi
-        for i in {2..5}; do
-          if [ -f "services/classes${i}.dex" ]; then
-            java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} "services/classes${i}.dex" -o "services_classes${i}"
-          else
-            echo "services/classes${i}.dex bulunamadı, atlanıyor."
-          fi
-        done
+      - name: Delete Existing Release
+        uses: actions/github-script@v6
+        continue-on-error: true
+        with:
+          script: |
+            try {
+              const releases = await github.rest.repos.listReleases({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              });
 
-    - name: miui-services dex dosyasını decompile et
-      run: |
-        java -jar baksmali.jar d -a ${{ github.event.inputs.android_api_level }} miui_services/classes.dex -o miui_services_classes
+              const existingRelease = releases.data.find(r => r.tag_name === '${{ steps.release_info.outputs.tag }}');
 
-    - name: smali dosyalarını yedekle
-      run: |
-        cp -r classes classes_backup || echo "classes dizini bulunamadı, yedeklenmiyor."
-        cp -r classes2 classes2_backup || echo "classes2 dizini bulunamadı, yedeklenmiyor."
-        cp -r classes3 classes3_backup || echo "classes3 dizini bulunamadı, yedeklenmiyor."
-        cp -r classes4 classes4_backup || echo "classes4 dizini bulunamadı, yedeklenmiyor."
-        cp -r classes5 classes5_backup || echo "classes5 dizini bulunamadı, yedeklenmiyor."
-        cp -r services_classes services_classes_backup || echo "services_classes dizini bulunamadı, yedeklenmiyor."
-        cp -r services_classes2 services_classes2_backup || echo "services_classes2 dizini bulunamadı, yedeklenmiyor."
-        cp -r services_classes3 services_classes3_backup || echo "services_classes3 dizini bulunamadı, yedeklenmiyor."
-        cp -r services_classes4 services_classes4_backup || echo "services_classes4 dizini bulunamadı, yedeklenmiyor."
-        cp -r services_classes5 services_classes5_backup || echo "services_classes5 dizini bulunamadı, yedeklenmiyor."
-        cp -r miui_services_classes miui_services_classes_backup
+              if (existingRelease) {
+                console.log('Found existing release, deleting...');
+                await github.rest.repos.deleteRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  release_id: existingRelease.id
+                });
 
-    - name: framework smali dosyalarını düzenle
-      run: |
-        python3 framework_patch.py "${{ github.event.inputs.core }}"
+                // Delete the tag
+                try {
+                  await github.rest.git.deleteRef({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: 'tags/${{ steps.release_info.outputs.tag }}'
+                  });
+                } catch (e) {
+                  console.log('Tag might not exist, continuing...');
+                }
+              }
+            } catch (e) {
+              console.log('No existing release found or error occurred:', e.message);
+            }
 
-    - name: services smali dosyalarını düzenle
-      run: |
-        python3 services_patch.py "${{ github.event.inputs.core }}"
+      - name: Generate Release Body
+        id: generate_release_body
+        run: |
+          BODY="Android 16 Framework Patcher for ${{ github.event.inputs.device_name }}
+          Version: ${{ github.event.inputs.version_name }}
+          Android API: ${{ github.event.inputs.api_level }}
 
-    - name: miui-services smali dosyalarını düzenle
-      run: |
-        python3 miui-service_Patch.py
+          Sources:
+          - Framework: ${{ github.event.inputs.framework_url }}
+          - Services: ${{ github.event.inputs.services_url }}
+          - MIUI Services: ${{ github.event.inputs.miui_services_url }}
 
-    - name: framework dex dosyalarını yeniden derle
-      run: |
-        if [ -d classes ]; then
-          java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} classes -o framework/classes.dex
-        else
-          echo "classes dizini bulunamadı, derleme atlanıyor."
-        fi
-        for i in {2..5}; do
-          if [ -d "classes$i" ]; then
-            java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} "classes$i" -o "framework/classes$i.dex"
-          else
-            echo "classes$i dizini bulunamadı, derleme atlanıyor."
-          fi
-        done
+          Build date: $(date +'%Y-%m-%d')
+          Build time: $(date +'%H:%M:%S UTC')"
+          echo "release_body<<EOF" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-    - name: services dex dosyalarını yeniden derle
-      run: |
-        if [ -d services_classes ]; then
-          java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} services_classes -o services/classes.dex
-        else
-          echo "services_classes dizini bulunamadı, derleme atlanıyor."
-        fi
-        for i in {2..5}; do
-          if [ -d "services_classes$i" ]; then
-            java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} "services_classes$i" -o "services/classes$i.dex"
-          else
-            echo "services_classes$i dizini bulunamadı, derleme atlanıyor."
-          fi
-        done
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.release_info.outputs.tag }}
+          name: ${{ steps.release_info.outputs.name }}
+          files: ${{ steps.find_zip.outputs.file_path }}
+          body: ${{ steps.generate_release_body.outputs.release_body }}
 
-    - name: miui-services dex dosyasını yeniden derle
-      run: |
-        java -jar smali.jar a -a ${{ github.event.inputs.android_api_level }} miui_services_classes -o miui_services/classes.dex
+      - name: Upload patched jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: android16-patched-jars-${{ github.run_id }}
+          if-no-files-found: warn
+          path: |
+            framework_patched.jar
+            services_patched.jar
+            miui-services_patched.jar
+          retention-days: 7
 
-    - name: framework.jar dosyasını yeniden oluştur
-      run: |
-        cd framework
-        7z a -tzip -mx=0 ../framework_new.zip *
-        cd ..
-
-    - name: services.jar dosyasını yeniden oluştur
-      run: |
-        cd services
-        7z a -tzip -mx=0 ../services_new.zip *
-        cd ..
-
-    - name: miui-services.jar dosyasını yeniden oluştur
-      run: |
-        cd miui_services
-        7z a -tzip -mx=0 ../miui_services_new.zip *
-        cd ..
-
-    - name: Ziplere hizalama (align) uygula
-      run: |
-        zipalign -f -p -v -z 4 framework_new.zip aligned_framework.jar
-        zipalign -f -p -v -z 4 services_new.zip aligned_services.jar
-        zipalign -f -p -v -z 4 miui_services_new.zip aligned_miui_services.jar
-
-    - name: Klasörleri oluştur ve jar dosyalarını kopyala
-      run: |
-        mkdir -p system/system/framework
-        mkdir -p system_ext/framework
-        cp aligned_framework.jar system/system/framework/framework.jar
-        cp aligned_services.jar system/system/framework/services.jar
-        cp aligned_miui_services.jar system_ext/framework/miui-services.jar
-
-    - name: Sürümü Linkten Oluştur
-      run: |
-        if [ -z "${{ github.event.inputs.custom_version }}" ]; then
-          framework_url="${{ github.event.inputs.framework_jar_url }}"
-          version=$(echo $framework_url | grep -oP '(?<=V)[^/]*(?=/system)')
-          echo "version=${version}" >> $GITHUB_ENV
-        else
-          echo "version=${{ github.event.inputs.custom_version }}" >> $GITHUB_ENV
-        fi
-        if [ -z "${{ github.event.inputs.custom_device_name }}" ]; then
-          framework_url="${{ github.event.inputs.framework_jar_url }}"
-          device_name=$(echo $framework_url | grep -oP '(?<=redmi/)[^/]*(?=/-)')
-          echo "device_name=${device_name}" >> $GITHUB_ENV
-        else
-          echo "device_name=${{ github.event.inputs.custom_device_name }}" >> $GITHUB_ENV
-        fi
-        echo "version=${version}"
-        echo "device_name=${device_name}"
-
-    - name: Çıktıyı zip olarak oluştur
-      run: |
-       timestamp=$(TZ="Europe/Istanbul" date +"_%d-%m-%Y_%H%M%S")
-       zip -r "${{ env.device_name }}_${{ env.version }}${timestamp}.zip" system system_ext
-       mkdir -p out
-       chmod +w "${{ env.device_name }}_${{ env.version }}${timestamp}.zip"
-       mv "${{ env.device_name }}_${{ env.version }}${timestamp}.zip" out/
-       echo "timestamp=${timestamp}" >> $GITHUB_ENV
-
-    - name: Sürüm Notları Oluştur
-      run: |
-        echo "## Sürüm Notları" > release_notes.txt
-        echo "- ${{ github.sha }} commitinden oluşturuldu" >> release_notes.txt
-        echo "- Sürüm: ${{ env.version }}" >> release_notes.txt
-        echo "- Android Sürümü: ${{ github.event.inputs.android_api_level }}" >> release_notes.txt
-
-    - name: Sürüm Oluştur
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: out/*
-        tag: ${{ env.version }}
-        name: ${{ env.device_name }}_${{ env.version }}
-        allowUpdates: true
+      - name: Upload Magisk module zip
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android16-magisk-module-${{ github.run_id }}
+          if-no-files-found: warn
+          path: Framework-Patcher-${{ github.event.inputs.device_name }}-*.zip
+          retention-days: 7
         makeLatest: true
         bodyFile: release_notes.txt
         token: ${{ secrets.GITHUB_TOKEN }}
