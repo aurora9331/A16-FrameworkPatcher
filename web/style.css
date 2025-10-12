@@ -1,20 +1,20 @@
 :root {
-    --bg: #3a006b;           /* Koyu eflatun ana arka plan */
-    --bg-alt: #52008b;       /* Daha koyu eflatun kutu arka planı */
+    --bg: #3689a1;           /* Ana arka plan */
+    --bg-alt: #2c6f85;       /* Alternatif koyu arka plan */
     --text: #ffffff;         /* Beyaz metin */
-    --accent: #e3c5ff;       /* Açık eflatun accent */
-    --accent-dark: #a259c7;  /* Koyu eflatun accent-dark */
-    --success: #a6e3a1;
+    --accent: #60b0c9;       /* Turkuaz accent */
+    --accent-dark: #4fa1bb;  /* Biraz koyu turkuaz accent-dark */
+    --success: #7be1c7;
     --error: #f38ba8;
-    --border: #7d5aa4;       /* Açık eflatun border */
-    --input-bg: #7d5aa4;     /* Inputlarda açık eflatun */
+    --border: #2c6f85;       /* Border için koyu ton */
+    --input-bg: #4fa1bb;     /* Inputlarda açık turkuaz */
     --input-text: #ffffff;
-    --input-border: #e3c5ff;
-    --btn-bg: #a259c7;       /* Butonlar için canlı eflatun */
-    --btn-hover: #e3c5ff;
-    --btn-text: #3a006b;
-    --secondary-bg: #52008b;
-    --secondary-hover: #7d5aa4;
+    --input-border: #60b0c9;
+    --btn-bg: #60b0c9;       /* Butonlar için accent */
+    --btn-hover: #3689a1;    /* Buton hover ana renk */
+    --btn-text: #fff;        /* Buton yazısı beyaz */
+    --secondary-bg: #2c6f85;
+    --secondary-hover: #4fa1bb;
     --secondary-text: #fff;
 }
 
@@ -29,12 +29,12 @@ body {
 }
 
 a {
-    color: var(--accent-dark);
+    color: var(--accent);
     text-decoration: none;
     transition: color 0.2s;
 }
 a:hover {
-    color: var(--accent);
+    color: var(--accent-dark);
 }
 
 .container {
@@ -55,12 +55,12 @@ a:hover {
     font-weight: bold;
     margin-left: 10px;
     display: inline-block;
-    color: var(--accent-dark);
+    color: var(--accent);
 }
 
 .logo i {
     font-size: 2rem;
-    color: var(--accent);
+    color: var(--accent-dark);
     vertical-align: middle;
 }
 
@@ -78,7 +78,7 @@ a:hover {
 .form-container {
     background: var(--bg-alt);
     border-radius: 18px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.15);
     padding: 32px 24px;
     margin-bottom: 24px;
     max-width: 910px;
@@ -143,7 +143,7 @@ a:hover {
 .form-group label, .form-group i {
     color: #fff !important;
     font-weight: 600;
-    text-shadow: 0 1px 8px #3a006b60;
+    text-shadow: 0 1px 8px #3689a160;
 }
 
 .form-group {
@@ -173,7 +173,7 @@ a:hover {
 }
 
 .form-group input:focus {
-    border-color: var(--accent-dark);
+    border-color: var(--accent);
 }
 
 small {
@@ -191,9 +191,12 @@ small {
     box-sizing: border-box;
 }
 
+.btn, .btn-primary, .btn-action {
+    color: #fff !important; /* Buton yazısı beyaz */
+}
+
 .btn {
     background: var(--btn-bg);
-    color: var(--btn-text);
     border: none;
     border-radius: 8px;
     padding: 8px 24px;
@@ -207,7 +210,6 @@ small {
 
 .btn-primary {
     background: var(--btn-bg);
-    color: var(--btn-text);
 }
 
 .btn-primary:hover {
@@ -216,7 +218,7 @@ small {
 
 .btn-secondary {
     background: var(--secondary-bg);
-    color: var(--secondary-text);
+    color: var(--secondary-text) !important;
 }
 
 .btn-secondary:hover {
@@ -225,7 +227,6 @@ small {
 
 .btn-action {
     background: var(--accent-dark);
-    color: var(--btn-text);
 }
 
 .btn-action:hover {
@@ -242,7 +243,7 @@ small {
 }
 
 .footer-content {
-    color: var(--accent);
+    color: var(--accent-dark);
     font-size: 1rem;
 }
 
@@ -254,14 +255,14 @@ small {
 }
 
 .footer-links a {
-    color: var(--accent-dark);
+    color: var(--accent);
     text-decoration: none;
     font-size: 1.07rem;
     transition: color 0.2s;
 }
 
 .footer-links a:hover {
-    color: var(--accent);
+    color: var(--accent-dark);
 }
 
 /* Scrollbar */
@@ -286,7 +287,7 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(58, 0, 107, 0.7); /* Koyu eflatun transparan */
+    background: rgba(54,137,161, 0.7); /* Ana rengin transparan hali */
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
@@ -296,7 +297,7 @@ small {
     background: var(--bg);
     color: var(--text);
     border-radius: 24px;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.28);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
     padding: 32px 24px;
     width: 100%;
     max-width: 340px;
