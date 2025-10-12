@@ -1,61 +1,61 @@
-name: Android 16 Framework Patcher
+name: Android 16 Framework Yama Aracı
 
 on:
   workflow_dispatch:
     inputs:
       framework_jar_url:
-        description: 'framework.jar için URL'
+        description: 'framework.jar dosyası için URL'
         required: true
       services_jar_url:
-        description: 'services.jar için URL'
+        description: 'services.jar dosyası için URL'
         required: true
       miui_services_jar_url:
-        description: 'miui-services.jar için URL'
+        description: 'miui-services.jar dosyası için URL'
         required: true
       android_api_level:
         description: 'Android API seviyesi'
         required: true
         default: '36'
       custom_device_name:
-        description: 'Özel cihaz adı'
+        description: 'Cihaz adı'
         required: true
       custom_version:
-        description: 'Özel sürüm'
+        description: 'Yama sürümü'
         required: true
 
 jobs:
   patch:
-    name: Android 16 Framework Patcher
+    name: Android 16 Framework Yama Aracı
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Depoyu kontrol et
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      - name: Java 17 kurulumunu yap
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install system dependencies
+      - name: Sistem bağımlılıklarını yükle
         run: |
           sudo apt-get update
           sudo apt-get install -y p7zip-full wget zip python3
 
-      - name: Prepare tools directory
+      - name: Araçlar klasörünü hazırla
         run: |
           mkdir -p tools
           if [ ! -f tools/apktool.jar ]; then
             wget -O tools/apktool.jar https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar
           fi
 
-      - name: Download framework JARs
+      - name: framework JAR dosyalarını indir
         run: |
           wget -O framework.jar "${{ github.event.inputs.framework_jar_url }}"
           wget -O services.jar "${{ github.event.inputs.services_jar_url }}"
           wget -O miui-services.jar "${{ github.event.inputs.miui_services_jar_url }}"
 
-      - name: Run Android 16 patcher
+      - name: Android 16 yama aracını çalıştır
         run: |
           chmod +x scripts/patcher_a16.sh
           ./scripts/patcher_a16.sh \
@@ -64,7 +64,7 @@ jobs:
             "${{ github.event.inputs.custom_version }}" \
             --framework --services --miui-services
 
-      - name: Prepare release directories
+      - name: Yayın klasörlerini hazırla
         run: |
           mkdir -p system/system/framework
           mkdir -p system_ext/framework
@@ -72,85 +72,30 @@ jobs:
           cp services.jar system/system/framework/services.jar
           cp miui-services.jar system_ext/framework/miui-services.jar
 
-      - name: Create ZIP for release
+      - name: Yayın için ZIP oluştur
         run: |
           zip -r Framework-Patcher-${{ github.event.inputs.custom_device_name }}-${{ github.event.inputs.custom_version }}.zip system system_ext
 
-      - name: List generated artifacts
+      - name: Oluşturulan dosyaları listele
         run: |
-          echo "Generated files:"
+          echo "Oluşturulan dosyalar:"
           ls -R | grep -E 'framework\\.jar$|services\\.jar$|miui-services\\.jar$|Framework-Patcher-'
 
-      - name: Set Release Info
+      - name: Yayın bilgisini ayarla
         id: release_info
         run: |
           SAFE_VERSION=$(echo "${{ github.event.inputs.custom_version }}" | sed 's/[. ]/-/g')
           RELEASE_TAG="${{ github.event.inputs.custom_device_name }}_${SAFE_VERSION}"
           echo "tag=${RELEASE_TAG}" >> $GITHUB_OUTPUT
-          echo "name=Android 16 Framework Patch for ${{ github.event.inputs.custom_device_name }} (${{ github.event.inputs.custom_version }})" >> $GITHUB_OUTPUT
+          echo "name=Android 16 Framework Yaması - ${{ github.event.inputs.custom_device_name }} (${{ github.event.inputs.custom_version }})" >> $GITHUB_OUTPUT
 
-      - name: Find Module ZIP
+      - name: ZIP dosyasını bul
         id: find_zip
         run: |
           ZIP_FILE=$(ls Framework-Patcher-${{ github.event.inputs.custom_device_name }}*.zip)
           echo "file_path=${ZIP_FILE}" >> $GITHUB_OUTPUT
 
-      - name: Delete Existing Release
-        uses: actions/github-script@v6
-        continue-on-error: true
-        with:
-          script: |
-            try {
-              const releases = await github.rest.repos.listReleases({
-                owner: context.repo.owner,
-                repo: context.repo.repo
-              });
-
-              const existingRelease = releases.data.find(r => r.tag_name === '${{ steps.release_info.outputs.tag }}');
-
-              if (existingRelease) {
-                console.log('Found existing release, deleting...');
-                await github.rest.repos.deleteRelease({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  release_id: existingRelease.id
-                });
-
-                // Delete the tag
-                try {
-                  await github.rest.git.deleteRef({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    ref: 'tags/${{ steps.release_info.outputs.tag }}'
-                  });
-                } catch (e) {
-                  console.log('Tag might not exist, continuing...');
-                }
-              }
-            } catch (e) {
-              console.log('No existing release found or error occurred:', e.message);
-            }
-
-      - name: Generate Release Body
-        id: generate_release_body
-        run: |
-          BODY="Android 16 Framework Patcher for ${{ github.event.inputs.custom_device_name }}
-          Version: ${{ github.event.inputs.custom_version }}
-          Android API: ${{ github.event.inputs.android_api_level }}
-
-          Sources:
-          - Framework: ${{ github.event.inputs.framework_jar_url }}
-          - Services: ${{ github.event.inputs.services_jar_url }}
-          - MIUI Services: ${{ github.event.inputs.miui_services_jar_url }}
-
-          Build date: $(date +'%Y-%m-%d')
-          Build time: $(date +'%H:%M:%S UTC')"
-          echo "release_body<<EOF" >> $GITHUB_OUTPUT
-          echo "$BODY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create Release
-        id: create_release
+      - name: GitHub Yayını oluştur
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -158,7 +103,6 @@ jobs:
           tag_name: ${{ steps.release_info.outputs.tag }}
           name: ${{ steps.release_info.outputs.name }}
           files: ${{ steps.find_zip.outputs.file_path }}
-          body: ${{ steps.generate_release_body.outputs.release_body }}
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
