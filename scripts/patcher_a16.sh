@@ -479,74 +479,6 @@ PY
 }
 
 # ----------------------------------------------
-# MIUI services: updateDefaultPkgInstallerLocked IS_INTERNATIONAL_BUILD patcher
-# ----------------------------------------------
-patch_updateDefaultPkgInstallerLocked_in_miui() {
-    local file="$1"
-    python3 - <<'PY' "$file"
-from pathlib import Path
-import re
-import sys
-
-path = Path(sys.argv[1])
-if not path.exists():
-    print(f"[patcher] File not found: {path}")
-    sys.exit(4)
-
-lines = path.read_text().splitlines()
-in_method = False
-patch_done = False
-new_lines = []
-
-for line in lines:
-    stripped = line.strip()
-    # Method başlangıcı mı?
-    if stripped.startswith('.method') and 'updateDefaultPkgInstallerLocked' in stripped:
-        in_method = True
-    elif in_method and stripped.startswith('.end method'):
-        in_method = False
-
-    # Patchle!
-    if in_method and re.match(r"\s*sget-boolean\s+v0,\s+Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z", line):
-        if not patch_done:
-            indent = re.match(r"\s*", line).group(0)
-            new_lines.append(f"{indent}const/4 v0, 0x0")
-            patch_done = True
-            print(f"[patcher] Replaced sget-boolean with const/4 v0, 0x0")
-        # sget-boolean satırını ekleme, yani tamamen sil!
-        continue
-    else:
-        new_lines.append(line)
-
-if patch_done:
-    # Tüm dosyayı yeni satırlarla yaz
-    Path(path).write_text('\n'.join(new_lines) + '\n')
-else:
-    print("[patcher] No match found for sget-boolean in updateDefaultPkgInstallerLocked")
-    sys.exit(3)
-PY
-
-    local status=$?
-    case "$status" in
-        0)
-            log "Patched updateDefaultPkgInstallerLocked IS_INTERNATIONAL_BUILD in $(basename "$file")"
-            ;;
-        3)
-            warn "Pattern not found in updateDefaultPkgInstallerLocked of $(basename "$file")"
-            ;;
-        4)
-            warn "File not found: $file"
-            ;;
-        *)
-            err "Failed to patch updateDefaultPkgInstallerLocked in $file (status $status)"
-            return 1
-            ;;
-    esac
-
-    return 0
-}
-
-# ----------------------------------------------
 # Framework patches (Android 16)
 # ----------------------------------------------
 
@@ -823,16 +755,6 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # --- PATCH: updateDefaultPkgInstallerLocked IS_INTERNATIONAL_BUILD ---
-    local miui_pms_impl_file
-    miui_pms_impl_file=$(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali" | head -n1)
-    if [ -n "$miui_pms_impl_file" ]; then
-        # Methodun tamamını sabit 0 ile patchle!
-        add_static_return_patch "updateDefaultPkgInstallerLocked()Z" "0" "$decompile_dir"
-    else
-        warn "PackageManagerServiceImpl.smali not found"
-    fi
-
     modify_invoke_custom_methods "$decompile_dir"
 
     # Targeted verification that won't hang
@@ -907,6 +829,8 @@ main() {
     if [ $patch_miui_services_flag -eq 1 ]; then
         patch_miui_services
     fi
+
+    create_magisk_module "$api_level" "$device_name" "$version_name"
 
     log "Android 16 patching completed successfully"
 }
