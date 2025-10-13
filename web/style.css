@@ -24,6 +24,12 @@
   --text: #dbeafe;
   --accent: #3355a8;
   --accent-dark: #1b2a4b;
+  --input-bg: #1b2a4b;
+  --input-text: #dbeafe;
+  --input-border: #3355a8;
+  --btn-bg: #122146;
+  --btn-hover: #0a1328;
+  --btn-text: #dbeafe;
 }
 :root.dark-green {
   --bg: #102313;
@@ -31,6 +37,12 @@
   --text: #e9ffe2;
   --accent: #235d36;
   --accent-dark: #183c24;
+  --input-bg: #183c24;
+  --input-text: #e9ffe2;
+  --input-border: #235d36;
+  --btn-bg: #142c1b;
+  --btn-hover: #102313;
+  --btn-text: #e9ffe2;
 }
 :root.dark-purple {
   --bg: #1a1433;
@@ -38,6 +50,12 @@
   --text: #f0e6ff;
   --accent: #7c3aed;
   --accent-dark: #4b2580;
+  --input-bg: #24184a;
+  --input-text: #f0e6ff;
+  --input-border: #7c3aed;
+  --btn-bg: #24184a;
+  --btn-hover: #1a1433;
+  --btn-text: #f0e6ff;
 }
 :root.dark-red {
   --bg: #2a0a13;
@@ -45,6 +63,12 @@
   --text: #ffeaea;
   --accent: #a83355;
   --accent-dark: #4b1b2a;
+  --input-bg: #4b1b2a;
+  --input-text: #ffeaea;
+  --input-border: #a83355;
+  --btn-bg: #a83355;
+  --btn-hover: #461222;
+  --btn-text: #ffeaea;
 }
 
 /* Temel yapı */
@@ -226,10 +250,11 @@ a:hover {
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
 }
 
 input[readonly] {
-    background-color: #1b2a4b;
+    background-color: var(--input-bg);
     color: #a3bffa;
     cursor: not-allowed;
 }
@@ -260,18 +285,7 @@ small {
 .btn, .btn-primary, .btn-action {
     background: var(--btn-bg) !important;
     color: var(--btn-text) !important;
-}
-
-.btn {
-    border: none;
-    border-radius: 8px;
-    padding: 8px 24px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-    outline: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.13);
+    transition: background 0.25s, color 0.25s;
 }
 
 .btn-primary:hover,
