@@ -490,6 +490,7 @@ import re
 
 path = Path(sys.argv[1])
 if not path.exists():
+    print(f"[patcher] File not found: {path}")
     sys.exit(4)
 
 lines = path.read_text().splitlines()
@@ -498,19 +499,22 @@ changed = False
 
 for i, line in enumerate(lines):
     stripped = line.strip()
-    if stripped.startswith('.method') and "private updateDefaultPkgInstallerLocked()Z" in stripped:
+    # Esnekleştir: sadece method adını ara, erişim belirteci değişebilir
+    if stripped.startswith('.method') and 'updateDefaultPkgInstallerLocked' in stripped:
         in_method = True
     elif in_method and stripped.startswith('.end method'):
         in_method = False
-    elif in_method and "sget-boolean v0, Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z" in stripped:
+    elif in_method and re.search(r"sget-boolean\s+v0,\s+Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z", stripped):
         indent = re.match(r"\s*", line).group(0)
         lines[i] = f"{indent}const/4 v0, 0x0"
         changed = True
+        print(f"[patcher] Patched sget-boolean at line {i}")
         break
 
 if changed:
     path.write_text('\n'.join(lines) + '\n')
-if not changed:
+else:
+    print("[patcher] No match found for sget-boolean in updateDefaultPkgInstallerLocked")
     sys.exit(3)
 PY
 
