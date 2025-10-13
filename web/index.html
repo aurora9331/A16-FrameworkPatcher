@@ -17,6 +17,16 @@
             </div>
             <p class="subtitle">Android Framework dosyaları için kolay ve güvenli patchleme aracı.</p>
         </div>
+        <!-- Tema seçici eklendi -->
+        <div class="theme-switcher" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;">
+            <label for="themeColor"><i class="fa-solid fa-palette"></i> Tema Rengi:</label>
+            <select id="themeColor">
+                <option value="dark-blue">Koyu Mavi</option>
+                <option value="dark-green">Koyu Yeşil</option>
+                <option value="dark-purple">Koyu Mor</option>
+                <option value="dark-red">Koyu Kırmızı</option>
+            </select>
+        </div>
     </header>
     <main class="main-content">
         <div class="form-container active">
@@ -45,8 +55,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="android_api_level"><i class="fa-solid fa-code"></i> Android API Seviyesi</label>
-                        <input type="number" id="android_api_level" name="android_api_level" min="1" required value="36">
-                        <!-- <small>Örn: 36</small> -->
+                        <input type="number" id="android_api_level" name="android_api_level" value="36" readonly>
                     </div>
                     <div class="form-group">
                         <label for="custom_device_name"><i class="fa-solid fa-mobile-screen"></i> Özel Cihaz Adı</label>
@@ -94,6 +103,22 @@ const modalSuccess = document.getElementById('modalSuccess');
 const modalError = document.getElementById('modalError');
 const modalClose = document.getElementById('modalClose');
 const modalWorkflow = document.getElementById('modalWorkflow');
+
+// Tema seçici fonksiyonu
+document.addEventListener('DOMContentLoaded', function () {
+    const themeSelect = document.getElementById('themeColor');
+    const theme = localStorage.getItem('selectedTheme') || 'dark-blue';
+    document.documentElement.classList.add(theme);
+    if (themeSelect) themeSelect.value = theme;
+
+    if (themeSelect) {
+        themeSelect.addEventListener('change', function() {
+            document.documentElement.classList.remove('dark-blue', 'dark-green', 'dark-purple', 'dark-red');
+            document.documentElement.classList.add(this.value);
+            localStorage.setItem('selectedTheme', this.value);
+        });
+    }
+});
 
 patchForm.addEventListener('submit', async function(e) {
     e.preventDefault();
