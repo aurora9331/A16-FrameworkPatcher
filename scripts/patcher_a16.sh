@@ -495,24 +495,32 @@ if not path.exists():
 
 lines = path.read_text().splitlines()
 in_method = False
-changed = False
+patch_done = False
+new_lines = []
 
-for i in range(len(lines)):
-    line = lines[i]
+for line in lines:
     stripped = line.strip()
+    # Method başlangıcı mı?
     if stripped.startswith('.method') and 'updateDefaultPkgInstallerLocked' in stripped:
         in_method = True
     elif in_method and stripped.startswith('.end method'):
         in_method = False
-    elif in_method and re.match(r"\s*sget-boolean\s+v0,\s+Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z", line):
-        indent = re.match(r"\s*", line).group(0)
-        lines[i] = f"{indent}const/4 v0, 0x0"
-        changed = True
-        print(f"[patcher] Replaced sget-boolean with const/4 v0, 0x0 at line {i}")
-        # Devam et, diğerlerini de değiştir!
 
-if changed:
-    path.write_text('\n'.join(lines) + '\n')
+    # Patchle!
+    if in_method and re.match(r"\s*sget-boolean\s+v0,\s+Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z", line):
+        if not patch_done:
+            indent = re.match(r"\s*", line).group(0)
+            new_lines.append(f"{indent}const/4 v0, 0x0")
+            patch_done = True
+            print(f"[patcher] Replaced sget-boolean with const/4 v0, 0x0")
+        # sget-boolean satırını ekleme, yani tamamen sil!
+        continue
+    else:
+        new_lines.append(line)
+
+if patch_done:
+    # Tüm dosyayı yeni satırlarla yaz
+    Path(path).write_text('\n'.join(new_lines) + '\n')
 else:
     print("[patcher] No match found for sget-boolean in updateDefaultPkgInstallerLocked")
     sys.exit(3)
