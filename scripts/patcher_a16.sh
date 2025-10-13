@@ -479,6 +479,62 @@ PY
 }
 
 # ----------------------------------------------
+# MIUI services: updateDefaultPkgInstallerLocked IS_INTERNATIONAL_BUILD patcher
+# ----------------------------------------------
+patch_updateDefaultPkgInstallerLocked_in_miui() {
+    local file="$1"
+    python3 - <<'PY' "$file"
+from pathlib import Path
+import sys
+import re
+
+path = Path(sys.argv[1])
+if not path.exists():
+    sys.exit(4)
+
+lines = path.read_text().splitlines()
+in_method = False
+changed = False
+
+for i, line in enumerate(lines):
+    stripped = line.strip()
+    if stripped.startswith('.method') and "private updateDefaultPkgInstallerLocked()Z" in stripped:
+        in_method = True
+    elif in_method and stripped.startswith('.end method'):
+        in_method = False
+    elif in_method and "sget-boolean v0, Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z" in stripped:
+        indent = re.match(r"\s*", line).group(0)
+        lines[i] = f"{indent}const/4 v0, 0x0"
+        changed = True
+        break
+
+if changed:
+    path.write_text('\n'.join(lines) + '\n')
+if not changed:
+    sys.exit(3)
+PY
+
+    local status=$?
+    case "$status" in
+        0)
+            log "Patched updateDefaultPkgInstallerLocked IS_INTERNATIONAL_BUILD in $(basename "$file")"
+            ;;
+        3)
+            warn "Pattern not found in updateDefaultPkgInstallerLocked of $(basename "$file")"
+            ;;
+        4)
+            warn "File not found: $file"
+            ;;
+        *)
+            err "Failed to patch updateDefaultPkgInstallerLocked in $file (status $status)"
+            return 1
+            ;;
+    esac
+
+    return 0
+}
+
+# ----------------------------------------------
 # Framework patches (Android 16)
 # ----------------------------------------------
 
@@ -754,6 +810,15 @@ patch_miui_services() {
     # According to the miui-services guide: force specific methods to return-void
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
+
+    # --- PATCH: updateDefaultPkgInstallerLocked IS_INTERNATIONAL_BUILD ---
+    local miui_pms_impl_file
+    miui_pms_impl_file=$(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali" | head -n1)
+    if [ -n "$miui_pms_impl_file" ]; then
+        patch_updateDefaultPkgInstallerLocked_in_miui "$miui_pms_impl_file"
+    else
+        warn "PackageManagerServiceImpl.smali not found"
+    fi
 
     modify_invoke_custom_methods "$decompile_dir"
 
