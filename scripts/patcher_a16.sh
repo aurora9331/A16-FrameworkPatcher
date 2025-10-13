@@ -499,16 +499,16 @@ changed = False
 
 for i, line in enumerate(lines):
     stripped = line.strip()
-    # Esnekleştir: sadece method adını ara, erişim belirteci değişebilir
     if stripped.startswith('.method') and 'updateDefaultPkgInstallerLocked' in stripped:
         in_method = True
     elif in_method and stripped.startswith('.end method'):
         in_method = False
-    elif in_method and re.search(r"sget-boolean\s+v0,\s+Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z", stripped):
+    # SATIRI DEĞİŞTİR!
+    elif in_method and re.match(r"\s*sget-boolean\s+v0,\s+Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z", line):
         indent = re.match(r"\s*", line).group(0)
         lines[i] = f"{indent}const/4 v0, 0x0"
         changed = True
-        print(f"[patcher] Patched sget-boolean at line {i}")
+        print(f"[patcher] Replaced sget-boolean with const/4 v0, 0x0 at line {i}")
         break
 
 if changed:
