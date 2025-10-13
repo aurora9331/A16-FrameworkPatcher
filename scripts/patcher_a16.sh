@@ -485,8 +485,8 @@ patch_updateDefaultPkgInstallerLocked_in_miui() {
     local file="$1"
     python3 - <<'PY' "$file"
 from pathlib import Path
-import sys
 import re
+import sys
 
 path = Path(sys.argv[1])
 if not path.exists():
@@ -497,19 +497,19 @@ lines = path.read_text().splitlines()
 in_method = False
 changed = False
 
-for i, line in enumerate(lines):
+for i in range(len(lines)):
+    line = lines[i]
     stripped = line.strip()
     if stripped.startswith('.method') and 'updateDefaultPkgInstallerLocked' in stripped:
         in_method = True
     elif in_method and stripped.startswith('.end method'):
         in_method = False
-    # SATIRI DEĞİŞTİR!
     elif in_method and re.match(r"\s*sget-boolean\s+v0,\s+Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z", line):
         indent = re.match(r"\s*", line).group(0)
         lines[i] = f"{indent}const/4 v0, 0x0"
         changed = True
         print(f"[patcher] Replaced sget-boolean with const/4 v0, 0x0 at line {i}")
-        break
+        # Devam et, diğerlerini de değiştir!
 
 if changed:
     path.write_text('\n'.join(lines) + '\n')
