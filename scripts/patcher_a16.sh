@@ -827,7 +827,8 @@ patch_miui_services() {
     local miui_pms_impl_file
     miui_pms_impl_file=$(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali" | head -n1)
     if [ -n "$miui_pms_impl_file" ]; then
-        patch_updateDefaultPkgInstallerLocked_in_miui "$miui_pms_impl_file"
+        # Methodun tamamını sabit 0 ile patchle!
+        add_static_return_patch "updateDefaultPkgInstallerLocked()Z" "0" "$decompile_dir"
     else
         warn "PackageManagerServiceImpl.smali not found"
     fi
