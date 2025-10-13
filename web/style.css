@@ -10,10 +10,10 @@
   --input-bg: #1b2a4b;
   --input-text: #dbeafe;
   --input-border: #3355a8;
-  --btn-bg: #122146;
-  --btn-hover: #3355a8;
-  --btn-text: #dbeafe;
-  --btn-shadow: 0 4px 18px 0 rgba(51,85,168,0.18);
+  --btn-bg: #3b59c9;
+  --btn-hover: #5ea1ff;
+  --btn-text: #fff;
+  --btn-shadow: 0 4px 18px 0 rgba(51,85,168,0.14);
   --btn-radius: 14px;
   --btn-font-size: 1.22rem;
   --btn-padding: 15px 44px;
@@ -32,9 +32,9 @@
   --input-bg: #1b2a4b;
   --input-text: #dbeafe;
   --input-border: #3355a8;
-  --btn-bg: #122146;
-  --btn-hover: #3355a8;
-  --btn-text: #dbeafe;
+  --btn-bg: #3b59c9;
+  --btn-hover: #5ea1ff;
+  --btn-text: #fff;
 }
 :root.dark-green {
   --bg: #102313;
@@ -45,9 +45,9 @@
   --input-bg: #183c24;
   --input-text: #e9ffe2;
   --input-border: #235d36;
-  --btn-bg: #142c1b;
-  --btn-hover: #235d36;
-  --btn-text: #e9ffe2;
+  --btn-bg: #53b46d;
+  --btn-hover: #85f4ac;
+  --btn-text: #fff;
 }
 :root.dark-purple {
   --bg: #1a1433;
@@ -58,9 +58,9 @@
   --input-bg: #24184a;
   --input-text: #f0e6ff;
   --input-border: #7c3aed;
-  --btn-bg: #24184a;
-  --btn-hover: #7c3aed;
-  --btn-text: #f0e6ff;
+  --btn-bg: #ae77f7;
+  --btn-hover: #e0b3ff;
+  --btn-text: #fff;
 }
 :root.dark-red {
   --bg: #2a0a13;
@@ -71,9 +71,9 @@
   --input-bg: #4b1b2a;
   --input-text: #ffeaea;
   --input-border: #a83355;
-  --btn-bg: #a83355;
-  --btn-hover: #ff5073;
-  --btn-text: #ffeaea;
+  --btn-bg: #ff5073;
+  --btn-hover: #ff8fa3;
+  --btn-text: #fff;
 }
 
 /* Temel yapı */
@@ -309,7 +309,7 @@ small {
     text-align: center;
     position: relative;
     user-select: none;
-    border-bottom: 2px solid var(--accent-dark);
+    border-bottom: 3px solid var(--accent-dark);
 }
 
 .btn i, .btn-primary i, .btn-action i {
