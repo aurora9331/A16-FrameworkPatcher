@@ -1,21 +1,50 @@
 :root {
-    --bg: #0a1328;           /* Çok koyu mavi ana arka plan */
-    --bg-alt: #122146;       /* Kutu ve alt arka plan, ekstra koyu mavi */
-    --text: #dbeafe;         /* Açık mavi-beyaz metin */
-    --accent: #3355a8;       /* Koyu accent mavi */
-    --accent-dark: #1b2a4b;  /* Çok koyu accent */
-    --success: #6ad8db;
-    --error: #e56b8b;
-    --border: #1b2a4b;
-    --input-bg: #1b2a4b;
-    --input-text: #dbeafe;
-    --input-border: #3355a8;
-    --btn-bg: #122146;
-    --btn-hover: #0a1328;
-    --btn-text: #dbeafe;
-    --secondary-bg: #122146;
-    --secondary-hover: #1b2a4b;
-    --secondary-text: #dbeafe;
+  --bg: #0a1328;
+  --bg-alt: #122146;
+  --text: #dbeafe;
+  --accent: #3355a8;
+  --accent-dark: #1b2a4b;
+  --success: #6ad8db;
+  --error: #e56b8b;
+  --border: #1b2a4b;
+  --input-bg: #1b2a4b;
+  --input-text: #dbeafe;
+  --input-border: #3355a8;
+  --btn-bg: #122146;
+  --btn-hover: #0a1328;
+  --btn-text: #dbeafe;
+  --secondary-bg: #122146;
+  --secondary-hover: #1b2a4b;
+  --secondary-text: #dbeafe;
+}
+
+:root.dark-blue {
+  --bg: #0a1328;
+  --bg-alt: #122146;
+  --text: #dbeafe;
+  --accent: #3355a8;
+  --accent-dark: #1b2a4b;
+}
+:root.dark-green {
+  --bg: #102313;
+  --bg-alt: #142c1b;
+  --text: #e9ffe2;
+  --accent: #235d36;
+  --accent-dark: #183c24;
+}
+:root.dark-purple {
+  --bg: #1a1433;
+  --bg-alt: #24184a;
+  --text: #f0e6ff;
+  --accent: #7c3aed;
+  --accent-dark: #4b2580;
+}
+:root.dark-red {
+  --bg: #2a0a13;
+  --bg-alt: #461222;
+  --text: #ffeaea;
+  --accent: #a83355;
+  --accent-dark: #4b1b2a;
 }
 
 /* Temel yapı */
@@ -80,6 +109,22 @@ a:hover {
 .subtitle {
     font-size: 1.1rem;
     margin-top: 6px;
+}
+
+.theme-switcher label {
+    color: var(--text);
+    font-weight: 500;
+}
+.theme-switcher select {
+    background: var(--bg-alt);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 6px 16px;
+    font-size: 1rem;
+    outline: none;
+    margin-left: 5px;
+    cursor: pointer;
 }
 
 .main-content {
@@ -294,7 +339,7 @@ small {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(10, 19, 40, 0.7); /* Koyu mavi şeffaf modal arka plan */
+    background: rgba(10, 19, 40, 0.7);
     z-index: 1000;
 }
 .modal[style*="display: flex"] {
