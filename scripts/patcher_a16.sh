@@ -830,8 +830,6 @@ main() {
         patch_miui_services
     fi
 
-    create_magisk_module "$api_level" "$device_name" "$version_name"
-
     log "Android 16 patching completed successfully"
 }
 
