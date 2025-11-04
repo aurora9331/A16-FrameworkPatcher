@@ -774,7 +774,7 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # ----------------- YENI YAMA (SED VE AKILLI BULUCU) -----------------
+    # ----------------- YENI YAMA (SON DÜZELTME + DOĞRULAMA) -----------------
     # IS_INTERNATIONAL_BUILD yamasını uygula (resimdeki istek)
     local pms_impl_file
     pms_impl_file=$(resolve_smali_file "$decompile_dir" "com/android/server/pm/PackageManagerServiceImpl.smali")
@@ -791,11 +791,18 @@ patch_miui_services() {
         sed_replace=$(printf '%s\n' "$replacement_line" | sed 's/[.[\*^$]/\\&/g')
 
         # Değişikliği yapmadan önce satırın var olup olmadığını kontrol et
-        # -q (quiet) moduyla, bulduğu an durur
         if grep -q "$sed_target" "$pms_impl_file"; then
-            # satırbaşı boşluğunu (\1 ile yakala) koruyarak değiştir
-            sed -i "s|^\([[:space:]]*\)$sed_target|\1${sed_replace}|" "$pms_impl_file"
-            log "Replaced IS_INTERNATIONAL_BUILD line in $(basename "$pms_impl_file") using sed"
+            # DÜZELTME: Satırın sonundaki '.*' ile satırın geri kalanını da (varsa) eşleştirip değiştir.
+            sed -i "s|^\([[:space:]]*\)$sed_target.*|\1${sed_replace}|" "$pms_impl_file"
+            log "Patched IS_INTERNATIONAL_BUILD line in $(basename "$pms_impl_file") using sed."
+
+            # YAMAYI DOĞRULA: Değişiklikten sonra dosyada yeni satırı ara
+            # Başındaki boşlukları \s* ile eşleştir
+            if grep -q "^\s*${sed_replace}" "$pms_impl_file"; then
+                log "[VERIFY] Patch successful. New line found: $replacement_line"
+            else
+                err "[VERIFY] Patch FAILED. sed command ran but new line was not found!"
+            fi
         else
             warn "IS_INTERNATIONAL_BUILD target line not found in $(basename "$pms_impl_file")"
         fi
