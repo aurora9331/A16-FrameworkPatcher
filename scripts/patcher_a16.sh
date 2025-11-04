@@ -705,7 +705,7 @@ patch_services() {
         warn "ReconcilePackageUtils.smali not found"
     fi
 
-    modify_invoke_custom_methods "$decompile_dir"
+B    modify_invoke_custom_methods "$decompile_dir"
 
     # Emit robust verification logs for CI (avoid brittle hardcoded file paths)
     log "[VERIFY] services: locating isLeavingSharedUser invoke (context)"
@@ -774,40 +774,47 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # ----------------- YENI YAMA (SON DÜZELTME + DOĞRULAMA) -----------------
-    # IS_INTERNATIONAL_BUILD yamasını uygula (resimdeki istek)
-    local pms_impl_file
-    pms_impl_file=$(resolve_smali_file "$decompile_dir" "com/android/server/pm/PackageManagerServiceImpl.smali")
+    # ----------------- YENI YAMA (TÜM DOSYALARI HEDEFLEME) -----------------
+    log "Searching for ALL instances of PackageManagerServiceImpl.smali..."
+    local pms_impl_files
+    # find'dan gelen sonuçları bir array'e at
+    mapfile -t pms_impl_files < <(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali")
     
-    if [ -n "$pms_impl_file" ] && [ -f "$pms_impl_file" ]; then
-        log "Found target file for IS_INTERNATIONAL_BUILD patch: $pms_impl_file"
+    if [ ${#pms_impl_files[@]} -eq 0 ]; then
+        warn "PackageManagerServiceImpl.smali not found in miui-services, skipping IS_INTERNATIONAL_BUILD patch."
+    else
+        log "Found ${#pms_impl_files[@]} instance(s). Patching all..."
         local target_line="sget-boolean v0, Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z"
         local replacement_line="const/4 v0, 0x0"
         
-        # sed için özel karakterleri escape'le (kaçış karakteri ekle)
         local sed_target
         sed_target=$(printf '%s\n' "$target_line" | sed 's/[.[\*^$]/\\&/g')
         local sed_replace
         sed_replace=$(printf '%s\n' "$replacement_line" | sed 's/[.[\*^$]/\\&/g')
 
-        # Değişikliği yapmadan önce satırın var olup olmadığını kontrol et
-        if grep -q "$sed_target" "$pms_impl_file"; then
-            # DÜZELTME: Satırın sonundaki '.*' ile satırın geri kalanını da (varsa) eşleştirip değiştir.
-            sed -i "s|^\([[:space:]]*\)$sed_target.*|\1${sed_replace}|" "$pms_impl_file"
-            log "Patched IS_INTERNATIONAL_BUILD line in $(basename "$pms_impl_file") using sed."
+        local file_patched_count=0
+        local f
+        for f in "${pms_impl_files[@]}"; do
+            if [ -f "$f" ]; then
+                log "Patching file: $f"
+                if grep -q "$sed_target" "$f"; then
+                    # DÜZELTME: Satırın sonundaki '.*' ile satırın geri kalanını da (varsa) eşleştirip değiştir.
+                    sed -i "s|^\([[:space:]]*\)$sed_target.*|\1${sed_replace}|" "$f"
+                    log "Patched IS_INTERNATIONAL_BUILD line in $(basename "$f")."
 
-            # YAMAYI DOĞRULA: Değişiklikten sonra dosyada yeni satırı ara
-            # Başındaki boşlukları \s* ile eşleştir
-            if grep -q "^\s*${sed_replace}" "$pms_impl_file"; then
-                log "[VERIFY] Patch successful. New line found: $replacement_line"
-            else
-                err "[VERIFY] Patch FAILED. sed command ran but new line was not found!"
+                    # YAMAYI DOĞRULA
+                    if grep -q "^\s*${sed_replace}" "$f"; then
+                        log "[VERIFY] Patch successful for $(basename "$f")."
+                        file_patched_count=$((file_patched_count + 1))
+                    else
+                        err "[VERIFY] Patch FAILED for $(basename "$f")!"
+                    fi
+                else
+                    warn "Target line not found in $f, skipping."
+                fi
             fi
-        else
-            warn "IS_INTERNATIONAL_BUILD target line not found in $(basename "$pms_impl_file")"
-        fi
-    else
-        warn "PackageManagerServiceImpl.smali not found in miui-services, skipping IS_INTERNATIONAL_BUILD patch."
+        done
+        log "Patched $file_patched_count total file(s)."
     fi
     # ----------------- YENI YAMA SONU -----------------
 
