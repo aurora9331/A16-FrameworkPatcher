@@ -10,6 +10,34 @@ source "${SCRIPT_DIR}/helper.sh"
 # Internal helpers (python-powered transformations)
 # ----------------------------------------------
 
+# ----------------- GLOBAL DOSYA BULUCU (DÜZELTİLDİ) -----------------
+# Bu fonksiyon, decompile_dir içindekiTÜM smali* klasörlerinde arama yapar
+resolve_smali_file() {
+    # $1: decompile dir (örn: .../miui-services_decompile)
+    # $2: relative path (örn: com/android/server/pm/PackageManagerServiceImpl.smali)
+    local decompile_dir="$1"
+    local rel_path="$2"
+    local cand
+    
+    # Apktool'un decompile ettiği ana smali klasörlerini (classes.dex, classes2.dex vb.) kontrol et
+    # Önce en olası olanları (smali, smali_classes2, smali_classes3) kontrol et
+    for d in "$decompile_dir/smali" \
+             "$decompile_dir/smali_classes2" \
+             "$decompile_dir/smali_classes3" \
+             "$decompile_dir/smali_classes4" \
+             "$decompile_dir/smali_classes5" \
+             "$decompile_dir/smali_classes6"; do
+        cand="$d/$rel_path"
+        [ -f "$cand" ] && { printf "%s\n" "$cand"; return 0; }
+    done
+    
+    # Eğer yukarıda bulamazsa, emin olmak için tüm decompile_dir içinde find ile ara
+    # Bu, smali_classes10 gibi nadir durumları da yakalar
+    find "$decompile_dir" -type f -path "*/$rel_path" | head -n1
+}
+# ----------------- GLOBAL DOSYA BULUCU SONU -----------------
+
+
 insert_line_before_all() {
     local file="$1"
     local pattern="$2"
@@ -455,7 +483,7 @@ if not matched:
     sys.exit(3)
 
 if changed:
-    path.write_text('\n'.join(lines) + '\n')
+    path.write_text("\n".join(lines) + "\n")
 PY
 
     local status=$?
@@ -496,7 +524,7 @@ patch_framework() {
     decompile_dir=$(decompile_jar "$framework_path") || return 1
 
     local pkg_parser_file
-    pkg_parser_file=$(find "$decompile_dir" -type f -path "*/android/content/pm/PackageParser.smali" | head -n1)
+    pkg_parser_file=$(resolve_smali_file "$decompile_dir" "android/content/pm/PackageParser.smali")
     if [ -n "$pkg_parser_file" ]; then
         insert_line_before_all "$pkg_parser_file" "ApkSignatureVerifier;->unsafeGetCertsWithoutVerification" "const/4 v1, 0x1"
         insert_const_before_condition_near_string "$pkg_parser_file" '<manifest> specifies bad sharedUserId name' "if-nez v14, :" "v14" "1"
@@ -505,7 +533,7 @@ patch_framework() {
     fi
 
     local pkg_parser_exception_file
-    pkg_parser_exception_file=$(find "$decompile_dir" -type f -path "*/android/content/pm/PackageParser\$PackageParserException.smali" | head -n1)
+    pkg_parser_exception_file=$(resolve_smali_file "$decompile_dir" "android/content/pm/PackageParser\$PackageParserException.smali")
     if [ -n "$pkg_parser_exception_file" ]; then
         insert_line_before_all "$pkg_parser_exception_file" 'iput p1, p0, Landroid/content/pm/PackageParser$PackageParserException;->error:I' "const/4 p1, 0x0"
     else
@@ -513,7 +541,7 @@ patch_framework() {
     fi
 
     local pkg_signing_details_file
-    pkg_signing_details_file=$(find "$decompile_dir" -type f -path "*/android/content/pm/PackageParser\$SigningDetails.smali" | head -n1)
+    pkg_signing_details_file=$(resolve_smali_file "$decompile_dir" "android/content/pm/PackageParser\$SigningDetails.smali")
     if [ -n "$pkg_signing_details_file" ]; then
         force_methods_return_const "$pkg_signing_details_file" "checkCapability" "1"
     else
@@ -521,7 +549,7 @@ patch_framework() {
     fi
 
     local signing_details_file
-    signing_details_file=$(find "$decompile_dir" -type f -path "*/android/content/pm/SigningDetails.smali" | head -n1)
+    signing_details_file=$(resolve_smali_file "$decompile_dir" "android/content/pm/SigningDetails.smali")
     if [ -n "$signing_details_file" ]; then
         force_methods_return_const "$signing_details_file" "checkCapability" "1"
         force_methods_return_const "$signing_details_file" "checkCapabilityRecover" "1"
@@ -531,7 +559,7 @@ patch_framework() {
     fi
 
     local apk_sig_scheme_v2_file
-    apk_sig_scheme_v2_file=$(find "$decompile_dir" -type f -path "*/android/util/apk/ApkSignatureSchemeV2Verifier.smali" | head -n1)
+    apk_sig_scheme_v2_file=$(resolve_smali_file "$decompile_dir" "android/util/apk/ApkSignatureSchemeV2Verifier.smali")
     if [ -n "$apk_sig_scheme_v2_file" ]; then
         replace_move_result_after_invoke "$apk_sig_scheme_v2_file" "invoke-static {v8, v4}, Ljava/security/MessageDigest;->isEqual([B[B)Z" "const/4 v0, 0x1"
     else
@@ -540,7 +568,7 @@ patch_framework() {
 
 
     local apk_sig_scheme_v3_file
-    apk_sig_scheme_v3_file=$(find "$decompile_dir" -type f -path "*/android/util/apk/ApkSignatureSchemeV3Verifier.smali" | head -n1)
+    apk_sig_scheme_v3_file=$(resolve_smali_file "$decompile_dir" "android/util/apk/ApkSignatureSchemeV3Verifier.smali")
     if [ -n "$apk_sig_scheme_v3_file" ]; then
         replace_move_result_after_invoke "$apk_sig_scheme_v3_file" "invoke-static {v9, v3}, Ljava/security/MessageDigest;->isEqual([B[B)Z" "const/4 v0, 0x1"
     else
@@ -548,7 +576,7 @@ patch_framework() {
     fi
 
     local apk_signature_verifier_file
-    apk_signature_verifier_file=$(find "$decompile_dir" -type f -path "*/android/util/apk/ApkSignatureVerifier.smali" | head -n1)
+    apk_signature_verifier_file=$(resolve_smali_file "$decompile_dir" "android/util/apk/ApkSignatureVerifier.smali")
     if [ -n "$apk_signature_verifier_file" ]; then
         force_methods_return_const "$apk_signature_verifier_file" "getMinimumSignatureSchemeVersionForTargetSdk" "0"
         insert_line_before_all "$apk_signature_verifier_file" "ApkSignatureVerifier;->verifyV1Signature" "const/4 p3, 0x0"
@@ -557,15 +585,17 @@ patch_framework() {
     fi
 
     local apk_signing_block_utils_file
-    apk_signing_block_utils_file=$(find "$decompile_dir" -type f -path "*/android/util/apk/ApkSigningBlockUtils.smali" | head -n1)
+    apk_signing_block_utils_file=$(resolve_smali_file "$decompile_dir" "android/util/apk/ApkSigningBlockUtils.smali")
     if [ -n "$apk_signing_block_utils_file" ]; then
         replace_move_result_after_invoke "$apk_signing_block_utils_file" "invoke-static {v5, v6}, Ljava/security/MessageDigest;->isEqual([B[B)Z" "const/4 v7, 0x1"
     else
         warn "ApkSigningBlockUtils.smali not found"
     fi
 
+
+
     local strict_jar_verifier_file
-    strict_jar_verifier_file=$(find "$decompile_dir" -type f -path "*/android/util/jar/StrictJarVerifier.smali" | head -n1)
+    strict_jar_verifier_file=$(resolve_smali_file "$decompile_dir" "android/util/jar/StrictJarVerifier.smali")
     if [ -n "$strict_jar_verifier_file" ]; then
         force_methods_return_const "$strict_jar_verifier_file" "verifyMessageDigest" "1"
     else
@@ -573,7 +603,7 @@ patch_framework() {
     fi
 
     local strict_jar_file_file
-    strict_jar_file_file=$(find "$decompile_dir" -type f -path "*/android/util/jar/StrictJarFile.smali" | head -n1)
+    strict_jar_file_file=$(resolve_smali_file "$decompile_dir" "android/util/jar/StrictJarFile.smali")
     if [ -n "$strict_jar_file_file" ]; then
         replace_if_block_in_strict_jar_file "$strict_jar_file_file"
     else
@@ -581,7 +611,7 @@ patch_framework() {
     fi
 
     local parsing_package_utils_file
-    parsing_package_utils_file=$(find "$decompile_dir" -type f -path "*/com/android/internal/pm/pkg/parsing/ParsingPackageUtils.smali" | head -n1)
+    parsing_package_utils_file=$(resolve_smali_file "$decompile_dir" "com/android/internal/pm/pkg/parsing/ParsingPackageUtils.smali")
     if [ -n "$parsing_package_utils_file" ]; then
         insert_const_before_condition_near_string "$parsing_package_utils_file" '<manifest> specifies bad sharedUserId name' "if-eqz v4, :" "v4" "0"
     else
@@ -627,25 +657,12 @@ patch_services() {
         decompile_dir=$(decompile_jar "$services_path") || return 1
     fi
 
-    # Resolve smali files across classes*/ to handle layout differences in CI
-    resolve_smali_file() {
-        # $1: relative path like com/android/server/pm/PackageManagerServiceUtils.smali
-        local rel="$1"
-        local cand
-        for d in "$decompile_dir/classes" "$decompile_dir/classes2" "$decompile_dir/classes3" "$decompile_dir/classes4"; do
-            cand="$d/$rel"
-            [ -f "$cand" ] && { printf "%s\n" "$cand"; return 0; }
-        done
-        # fallback to find to be safe
-        find "$decompile_dir" -type f -path "*/$rel" | head -n1
-    }
-
     local pms_utils_file
-    pms_utils_file=$(resolve_smali_file "com/android/server/pm/PackageManagerServiceUtils.smali")
+    pms_utils_file=$(resolve_smali_file "$decompile_dir" "com/android/server/pm/PackageManagerServiceUtils.smali")
     local install_package_helper_file
-    install_package_helper_file=$(resolve_smali_file "com/android/server/pm/InstallPackageHelper.smali")
+    install_package_helper_file=$(resolve_smali_file "$decompile_dir" "com/android/server/pm/InstallPackageHelper.smali")
     local reconcile_package_utils_file
-    reconcile_package_utils_file=$(resolve_smali_file "com/android/server/pm/ReconcilePackageUtils.smali")
+    reconcile_package_utils_file=$(resolve_smali_file "$decompile_dir" "com/android/server/pm/ReconcilePackageUtils.smali")
 
     # checkDowngrade → return-void (all overloads)
     if [ -n "$pms_utils_file" ] && [ -f "$pms_utils_file" ]; then
@@ -659,7 +676,7 @@ patch_services() {
 
     # shouldCheckUpgradeKeySetLocked may live outside PMS utils on some builds – try to pin first, then fallback to search
     local should_check_file
-    should_check_file=$(resolve_smali_file "com/android/server/pm/KeySetManagerService.smali")
+    should_check_file=$(resolve_smali_file "$decompile_dir" "com/android/server/pm/KeySetManagerService.smali")
     if [ -n "$should_check_file" ] && [ -f "$should_check_file" ]; then
         force_methods_return_const "$should_check_file" "shouldCheckUpgradeKeySetLocked" "0"
     else
@@ -706,7 +723,7 @@ patch_services() {
 
     log "[VERIFY] services: ReconcilePackageUtils <clinit> toggle lines"
     local rpu_file
-    rpu_file=$(find "$decompile_dir" -type f -path "*/com/android/server/pm/ReconcilePackageUtils.smali" | head -n1)
+    rpu_file=$(resolve_smali_file "$decompile_dir" "com/android/server/pm/ReconcilePackageUtils.smali")
     if [ -n "$rpu_file" ]; then
         grep -n '^[[:space:]]*\\.method static constructor <clinit>()V' "$rpu_file" || true
         grep -n 'const/4 v0, 0x[01]' "$rpu_file" | head -n 5 || true
@@ -757,12 +774,13 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # ----------------- YENI YAMA (SED KULLANARAK) -----------------
+    # ----------------- YENI YAMA (SED VE AKILLI BULUCU) -----------------
     # IS_INTERNATIONAL_BUILD yamasını uygula (resimdeki istek)
     local pms_impl_file
-    pms_impl_file=$(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali" | head -n1)
+    pms_impl_file=$(resolve_smali_file "$decompile_dir" "com/android/server/pm/PackageManagerServiceImpl.smali")
     
     if [ -n "$pms_impl_file" ] && [ -f "$pms_impl_file" ]; then
+        log "Found target file for IS_INTERNATIONAL_BUILD patch: $pms_impl_file"
         local target_line="sget-boolean v0, Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z"
         local replacement_line="const/4 v0, 0x0"
         
