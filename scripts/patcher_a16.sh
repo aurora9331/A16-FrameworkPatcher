@@ -478,7 +478,7 @@ PY
     return 0
 }
 
-# ----------------- YENI FONKSIYON -----------------
+# ----------------- GELİŞTİRİLMİŞ FONKSİYON -----------------
 replace_line() {
     local file="$1"
     local pattern="$2"
@@ -506,9 +506,8 @@ changed_lines = []
 changed = False
 
 for line in lines:
-    # Tam satır desenini basitçe kontrol et (daha karmaşık regex de olabilir)
-    # Hata almamak için trim'leyip bakalım
-    if pattern in line.strip():
+    # Satırın başındaki/sonundaki boşlukları temizle ve TAM EŞLEŞME ara
+    if line.strip() == pattern:
         # Orijinal satırın girintisini (indent) al
         indent = re.match(r"\s*", line).group(0)
         # Değiştirilen satıra aynı girintiyi ekle
@@ -526,7 +525,7 @@ PY
     local status=$?
     case "$status" in
         0)
-            log "Replaced lines containing '${pattern##*/}' in $(basename "$file")"
+            log "Replaced lines matching '${pattern##*/}' in $(basename "$file")"
             ;;
         3)
             warn "Pattern '${pattern}' not found in $(basename "$file")"
@@ -542,7 +541,7 @@ PY
 
     return 0
 }
-# ----------------- YENI FONKSIYON SONU -----------------
+# ----------------- GELİŞTİRİLMİŞ FONKSİYON SONU -----------------
 
 
 # ----------------------------------------------
@@ -603,6 +602,7 @@ patch_framework() {
     else
         warn "ApkSignatureSchemeV2Verifier.smali not found"
     fi
+
 
     local apk_sig_scheme_v3_file
     apk_sig_scheme_v3_file=$(find "$decompile_dir" -type f -path "*/android/util/apk/ApkSignatureSchemeV3Verifier.smali" | head -n1)
