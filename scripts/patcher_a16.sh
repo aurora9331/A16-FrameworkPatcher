@@ -478,71 +478,6 @@ PY
     return 0
 }
 
-# ----------------- GELİŞTİRİLMİŞ FONKSİYON -----------------
-replace_line() {
-    local file="$1"
-    local pattern="$2"
-    local replacement="$3"
-
-    if [ -z "$file" ] || [ ! -f "$file" ]; then
-        warn "replace_line: File not found or not specified: $file"
-        return 0 # Hata verme, sadece uyar
-    fi
-
-    python3 - <<'PY' "$file" "$pattern" "$replacement"
-from pathlib import Path
-import sys
-import re
-
-path = Path(sys.argv[1])
-pattern = sys.argv[2]
-replacement = sys.argv[3]
-
-if not path.exists():
-    sys.exit(4)
-
-lines = path.read_text().splitlines()
-changed_lines = []
-changed = False
-
-for line in lines:
-    # Satırın başındaki/sonundaki boşlukları temizle ve TAM EŞLEŞME ara
-    if line.strip() == pattern:
-        # Orijinal satırın girintisini (indent) al
-        indent = re.match(r"\s*", line).group(0)
-        # Değiştirilen satıra aynı girintiyi ekle
-        changed_lines.append(f"{indent}{replacement}")
-        changed = True
-    else:
-        changed_lines.append(line)
-
-if not changed:
-    sys.exit(3) # Desen bulunamadı
-
-path.write_text("\n".join(changed_lines) + "\n")
-PY
-
-    local status=$?
-    case "$status" in
-        0)
-            log "Replaced lines matching '${pattern##*/}' in $(basename "$file")"
-            ;;
-        3)
-            warn "Pattern '${pattern}' not found in $(basename "$file")"
-            ;;
-        4)
-            warn "File not found: $file"
-            ;;
-        *)
-            err "Failed to replace line in $file (status $status)"
-            return 1
-            ;;
-    esac
-
-    return 0
-}
-# ----------------- GELİŞTİRİLMİŞ FONKSİYON SONU -----------------
-
 
 # ----------------------------------------------
 # Framework patches (Android 16)
@@ -822,7 +757,7 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # ----------------- YENI YAMA -----------------
+    # ----------------- YENI YAMA (SED KULLANARAK) -----------------
     # IS_INTERNATIONAL_BUILD yamasını uygula (resimdeki istek)
     local pms_impl_file
     pms_impl_file=$(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali" | head -n1)
@@ -830,7 +765,22 @@ patch_miui_services() {
     if [ -n "$pms_impl_file" ] && [ -f "$pms_impl_file" ]; then
         local target_line="sget-boolean v0, Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z"
         local replacement_line="const/4 v0, 0x0"
-        replace_line "$pms_impl_file" "$target_line" "$replacement_line"
+        
+        # sed için özel karakterleri escape'le (kaçış karakteri ekle)
+        local sed_target
+        sed_target=$(printf '%s\n' "$target_line" | sed 's/[.[\*^$]/\\&/g')
+        local sed_replace
+        sed_replace=$(printf '%s\n' "$replacement_line" | sed 's/[.[\*^$]/\\&/g')
+
+        # Değişikliği yapmadan önce satırın var olup olmadığını kontrol et
+        # -q (quiet) moduyla, bulduğu an durur
+        if grep -q "$sed_target" "$pms_impl_file"; then
+            # satırbaşı boşluğunu (\1 ile yakala) koruyarak değiştir
+            sed -i "s|^\([[:space:]]*\)$sed_target|\1${sed_replace}|" "$pms_impl_file"
+            log "Replaced IS_INTERNATIONAL_BUILD line in $(basename "$pms_impl_file") using sed"
+        else
+            warn "IS_INTERNATIONAL_BUILD target line not found in $(basename "$pms_impl_file")"
+        fi
     else
         warn "PackageManagerServiceImpl.smali not found in miui-services, skipping IS_INTERNATIONAL_BUILD patch."
     fi
