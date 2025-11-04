@@ -705,7 +705,6 @@ patch_services() {
         warn "ReconcilePackageUtils.smali not found"
     fi
 
-    # BU SATIRDAKİ FAZLADAN 'B' HARFİ SİLİNDİ
     modify_invoke_custom_methods "$decompile_dir"
 
     # Emit robust verification logs for CI (avoid brittle hardcoded file paths)
@@ -775,11 +774,12 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # ----------------- YENI YAMA (TÜM DOSYALARI HEDEFLEME) -----------------
+    # ----------------- YENI YAMA (TÜM DOSYALARI HEDEFLEME - SON SÜRÜM) -----------------
     log "Searching for ALL instances of PackageManagerServiceImpl.smali..."
     local pms_impl_files
     # find'dan gelen sonuçları bir array'e at
-    mapfile -t pms_impl_files < <(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali")
+    # ÖNEMLİ: find komutunu -print0 ve xargs -0 ile değiştirerek boşluk içeren yollarda hata almayı engelle
+    mapfile -t pms_impl_files < <(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali" -print0 | xargs -0 -n1)
     
     if [ ${#pms_impl_files[@]} -eq 0 ]; then
         warn "PackageManagerServiceImpl.smali not found in miui-services, skipping IS_INTERNATIONAL_BUILD patch."
@@ -798,13 +798,14 @@ patch_miui_services() {
         for f in "${pms_impl_files[@]}"; do
             if [ -f "$f" ]; then
                 log "Patching file: $f"
-                if grep -q "$sed_target" "$f"; then
+                # -q (quiet) ve -n (line number) olmadan basit grep kullan
+                if grep "$sed_target" "$f" >/dev/null; then
                     # DÜZELTME: Satırın sonundaki '.*' ile satırın geri kalanını da (varsa) eşleştirip değiştir.
                     sed -i "s|^\([[:space:]]*\)$sed_target.*|\1${sed_replace}|" "$f"
                     log "Patched IS_INTERNATIONAL_BUILD line in $(basename "$f")."
 
                     # YAMAYI DOĞRULA
-                    if grep -q "^\s*${sed_replace}" "$f"; then
+                    if grep "^\s*${sed_replace}" "$f" >/dev/null; then
                         log "[VERIFY] Patch successful for $(basename "$f")."
                         file_patched_count=$((file_patched_count + 1))
                     else
