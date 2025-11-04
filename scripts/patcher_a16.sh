@@ -705,7 +705,8 @@ patch_services() {
         warn "ReconcilePackageUtils.smali not found"
     fi
 
-B    modify_invoke_custom_methods "$decompile_dir"
+    # BU SATIRDAKİ FAZLADAN 'B' HARFİ SİLİNDİ
+    modify_invoke_custom_methods "$decompile_dir"
 
     # Emit robust verification logs for CI (avoid brittle hardcoded file paths)
     log "[VERIFY] services: locating isLeavingSharedUser invoke (context)"
