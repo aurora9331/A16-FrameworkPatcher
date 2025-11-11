@@ -714,9 +714,9 @@ patch_services() {
       "$decompile_dir" | head -n 1 || true
 
     log "[VERIFY] services: verifySignatures/compareSignatures/matchSignaturesCompat presence"
-    grep -R -n --include='*.smali' '^[[:space:]]*\\.method.* verifySignatures' "$decompile_dir" | head -n 1 || true
-    grep -R -n --include='*.smali' '^[[:space:]]*\\.method.* compareSignatures' "$decompile_dir" | head -n 1 || true
-    grep -R -n --include='*.smali' '^[[:space:]]*\\.method.* matchSignaturesCompat' "$decompile_dir" | head -n 1 || true
+    grep -R -n --include='*.smali' '^[[:space:]]*\.method.* verifySignatures' "$decompile_dir" | head -n 1 || true
+    grep -R -n --include='*.smali' '^[[:space:]]*\.method.* compareSignatures' "$decompile_dir" | head -n 1 || true
+    grep -R -n --include='*.smali' '^[[:space:]]*\.method.* matchSignaturesCompat' "$decompile_dir" | head -n 1 || true
 
     log "[VERIFY] services: checkDowngrade methods now return-void"
     grep -R -n --include='*.smali' '^[[:space:]]*\.method.*checkDowngrade' "$decompile_dir" | head -n 5 || true
@@ -774,51 +774,86 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # ----------------- YENI YAMA (TÜM DOSYALARI HEDEFLEME - SON SÜRÜM) -----------------
+    # ----------------- HEDEFLİ YAMA (Metod İçi) -----------------
     log "Searching for ALL instances of PackageManagerServiceImpl.smali..."
     local pms_impl_files
     # find'dan gelen sonuçları bir array'e at
-    # ÖNEMLİ: find komutunu -print0 ve xargs -0 ile değiştirerek boşluk içeren yollarda hata almayı engelle
     mapfile -t pms_impl_files < <(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali" -print0 | xargs -0 -n1)
     
     if [ ${#pms_impl_files[@]} -eq 0 ]; then
-        warn "PackageManagerServiceImpl.smali not found in miui-services, skipping IS_INTERNATIONAL_BUILD patch."
+        warn "PackageManagerServiceImpl.smali not found, skipping updateDefaultPkgInstallerLocked patch."
     else
         log "Found ${#pms_impl_files[@]} instance(s). Patching all..."
+        
+        # Aranacak metod (regex için parantezler escape edildi)
+        local method_start_pattern="\.method private updateDefaultPkgInstallerLocked\(\)Z"
+        local method_end_pattern="\.end method"
+        
+        # Değiştirilecek satır
         local target_line="sget-boolean v0, Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z"
         local replacement_line="const/4 v0, 0x0"
         
+        # Satırları regex için güvenli hale getir (sed'in s/find/replace/ kısmında kullanılacak)
         local sed_target
         sed_target=$(printf '%s\n' "$target_line" | sed 's/[.[\*^$]/\\&/g')
         local sed_replace
         sed_replace=$(printf '%s\n' "$replacement_line" | sed 's/[.[\*^$]/\\&/g')
 
+        # sed komutu:
+        # /method_start/,/method_end/ adres aralığında:
+        # s|...|...| komutunu çalıştır
+        # ^\([[:space:]]*\) -> Satır başı boşluğunu yakala (\1)
+        # ${sed_target}.* -> Hedef satırı ve sonrasını bul
+        # \1${sed_replace} -> Yakalanan boşluğu ve yeni satırı yaz
+        local sed_script
+        sed_script="/${method_start_pattern}/,/${method_end_pattern}/ s|^\([[:space:]]*\)${sed_target}.*|\1${sed_replace}|"
+
         local file_patched_count=0
         local f
         for f in "${pms_impl_files[@]}"; do
             if [ -f "$f" ]; then
-                log "Patching file: $f"
-                # -q (quiet) ve -n (line number) olmadan basit grep kullan
-                if grep "$sed_target" "$f" >/dev/null; then
-                    # DÜZELTME: Satırın sonundaki '.*' ile satırın geri kalanını da (varsa) eşleştirip değiştir.
-                    sed -i "s|^\([[:space:]]*\)$sed_target.*|\1${sed_replace}|" "$f"
-                    log "Patched IS_INTERNATIONAL_BUILD line in $(basename "$f")."
+                
+                # Önce metodun dosyada var olduğundan emin ol
+                if ! grep -q "${method_start_pattern}" "$f"; then
+                    warn "Method 'updateDefaultPkgInstallerLocked' not found in $f, skipping."
+                    continue
+                fi
 
-                    # YAMAYI DOĞRULA
-                    if grep "^\s*${sed_replace}" "$f" >/dev/null; then
-                        log "[VERIFY] Patch successful for $(basename "$f")."
-                        file_patched_count=$((file_patched_count + 1))
-                    else
-                        err "[VERIFY] Patch FAILED for $(basename "$f")!"
-                    fi
+                # Zaten yamalanmış mı diye kontrol et (metod içinde)
+                local check_already_patched
+                check_already_patched=$(sed -n "/${method_start_pattern}/,/${method_end_pattern}/p" "$f" | grep "^\s*${sed_replace}")
+                
+                if [ -n "$check_already_patched" ]; then
+                     log "Method 'updateDefaultPkgInstallerLocked' is already patched in $(basename "$f")."
+                     file_patched_count=$((file_patched_count + 1))
+                     continue
+                fi
+
+                log "Patching 'updateDefaultPkgInstallerLocked' in $f..."
+                # sed komutunu çalıştır
+                sed -i "$sed_script" "$f"
+                
+                # YAMAYI DOĞRULA (awk ile metod içinde olup olmadığını kontrol et)
+                local verify_script
+                verify_script=$(cat <<AWK
+BEGIN { in_method=0; found=0 }
+/${method_start_pattern}/ { in_method=1 }
+/${method_end_pattern}/ { in_method=0 }
+in_method && /^[[:space:]]*${sed_replace}/ { found=1; exit }
+END { if (found) exit 0; else exit 1 }
+AWK
+)
+                if awk "$verify_script" "$f"; then
+                    log "[VERIFY] Patch successful for $(basename "$f")."
+                    file_patched_count=$((file_patched_count + 1))
                 else
-                    warn "Target line not found in $f, skipping."
+                    err "[VERIFY] Patch FAILED for $(basename "$f")! Method found, but replacement not."
                 fi
             fi
         done
         log "Patched $file_patched_count total file(s)."
     fi
-    # ----------------- YENI YAMA SONU -----------------
+    # ----------------- YAMA SONU -----------------
 
     modify_invoke_custom_methods "$decompile_dir"
 
