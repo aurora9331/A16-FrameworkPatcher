@@ -57,6 +57,8 @@ jobs:
 
       - name: Android 16 yama aracını çalıştır
         run: |
+          # Düzeltme: helper.sh'a da izin ver
+          chmod +x scripts/helper.sh
           chmod +x scripts/patcher_a16.sh
           ./scripts/patcher_a16.sh \
             "${{ github.event.inputs.android_api_level }}" \
@@ -79,7 +81,7 @@ jobs:
       - name: Oluşturulan dosyaları listele
         run: |
           echo "Oluşturulan dosyalar:"
-          ls -R | grep -E 'framework\\.jar$|services\\.jar$|miui-services\\.jar$|Framework-Patcher-'
+          ls -R | grep -E 'framework\.jar$|services\.jar$|miui-services\.jar$|Framework-Patcher-'
 
       - name: Yayın bilgisini ayarla
         id: release_info
@@ -106,3 +108,20 @@ jobs:
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
+          # --- YENİ EKLENEN AÇIKLAMA BÖLÜMÜ BURASI ---
+          body: |
+            ### Android 16 Framework Yaması
+            
+            **Cihaz:** ${{ github.event.inputs.custom_device_name }}
+            **Sürüm:** ${{ github.event.inputs.custom_version }}
+            **API Seviyesi:** ${{ github.event.inputs.android_api_level }}
+            
+            ---
+            
+            #### 🤖 Uygulanan Yamalar
+            
+            Bu paket, aşağıdaki dosyaları modifiye eder:
+            
+            * **framework.jar:** İmza doğrulaması (signature verification) ve `sharedUserId` kontrolleri atlatıldı.
+            * **services.jar:** Sürüm düşürme (downgrade) kontrolleri ve imza karşılaştırmaları devre dışı bırakıldı.
+            * **miui-services.jar:** MIUI'ye özgü `IS_INTERNATIONAL_BUILD` kontrolü atlatıldı ve diğer MIUI doğrulamaları (isolation, update checks) kaldırıldı.
