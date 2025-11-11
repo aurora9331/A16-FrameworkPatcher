@@ -774,80 +774,54 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # ----------------- HEDEFLİ YAMA (Metod İçi) -----------------
+    # ----------------- DÜZELTİLMİŞ GENEL YAMA (Metod Kısıtlaması Kapatıldı) -----------------
     log "Searching for ALL instances of PackageManagerServiceImpl.smali..."
     local pms_impl_files
     # find'dan gelen sonuçları bir array'e at
     mapfile -t pms_impl_files < <(find "$decompile_dir" -type f -path "*/com/android/server/pm/PackageManagerServiceImpl.smali" -print0 | xargs -0 -n1)
     
     if [ ${#pms_impl_files[@]} -eq 0 ]; then
-        warn "PackageManagerServiceImpl.smali not found, skipping updateDefaultPkgInstallerLocked patch."
+        warn "PackageManagerServiceImpl.smali not found in miui-services, skipping IS_INTERNATIONAL_BUILD patch."
     else
         log "Found ${#pms_impl_files[@]} instance(s). Patching all..."
-        
-        # Aranacak metod (regex için parantezler escape edildi)
-        local method_start_pattern="\.method private updateDefaultPkgInstallerLocked\(\)Z"
-        local method_end_pattern="\.end method"
-        
-        # Değiştirilecek satır
         local target_line="sget-boolean v0, Lcom/android/server/pm/PackageManagerServiceImpl;->IS_INTERNATIONAL_BUILD:Z"
         local replacement_line="const/4 v0, 0x0"
         
-        # Satırları regex için güvenli hale getir (sed'in s/find/replace/ kısmında kullanılacak)
         local sed_target
         sed_target=$(printf '%s\n' "$target_line" | sed 's/[.[\*^$]/\\&/g')
         local sed_replace
         sed_replace=$(printf '%s\n' "$replacement_line" | sed 's/[.[\*^$]/\\&/g')
-
-        # sed komutu:
-        # /method_start/,/method_end/ adres aralığında:
-        # s|...|...| komutunu çalıştır
-        # ^\([[:space:]]*\) -> Satır başı boşluğunu yakala (\1)
-        # ${sed_target}.* -> Hedef satırı ve sonrasını bul
-        # \1${sed_replace} -> Yakalanan boşluğu ve yeni satırı yaz
-        local sed_script
-        sed_script="/${method_start_pattern}/,/${method_end_pattern}/ s|^\([[:space:]]*\)${sed_target}.*|\1${sed_replace}|"
 
         local file_patched_count=0
         local f
         for f in "${pms_impl_files[@]}"; do
             if [ -f "$f" ]; then
                 
-                # Önce metodun dosyada var olduğundan emin ol
-                if ! grep -q "${method_start_pattern}" "$f"; then
-                    warn "Method 'updateDefaultPkgInstallerLocked' not found in $f, skipping."
-                    continue
-                fi
+                # DÜZELTME: grep komutu, sed gibi, satır başındaki boşlukları (indentation) hesaba katmalı.
+                # -q (quiet) modu ile sadece var olup olmadığını kontrol et
+                if grep -q "^[[:space:]]*${sed_target}" "$f"; then
+                    
+                    # İYİLEŞTİRME: Dosya zaten yamalanmış mı diye kontrol et.
+                    if grep -q "^[[:space:]]*${sed_replace}" "$f"; then
+                        log "File is already patched: $(basename "$f")"
+                        file_patched_count=$((file_patched_count + 1))
+                        continue
+                    fi
 
-                # Zaten yamalanmış mı diye kontrol et (metod içinde)
-                local check_already_patched
-                check_already_patched=$(sed -n "/${method_start_pattern}/,/${method_end_pattern}/p" "$f" | grep "^\s*${sed_replace}")
-                
-                if [ -n "$check_already_patched" ]; then
-                     log "Method 'updateDefaultPkgInstallerLocked' is already patched in $(basename "$f")."
-                     file_patched_count=$((file_patched_count + 1))
-                     continue
-                fi
+                    log "Patching file: $f"
+                    # sed komutun zaten doğruydu (boşlukları yakalıyordu)
+                    sed -i "s|^\([[:space:]]*\)$sed_target.*|\1${sed_replace}|" "$f"
+                    log "Patched IS_INTERNATIONAL_BUILD line in $(basename "$f")."
 
-                log "Patching 'updateDefaultPkgInstallerLocked' in $f..."
-                # sed komutunu çalıştır
-                sed -i "$sed_script" "$f"
-                
-                # YAMAYI DOĞRULA (awk ile metod içinde olup olmadığını kontrol et)
-                local verify_script
-                verify_script=$(cat <<AWK
-BEGIN { in_method=0; found=0 }
-/${method_start_pattern}/ { in_method=1 }
-/${method_end_pattern}/ { in_method=0 }
-in_method && /^[[:space:]]*${sed_replace}/ { found=1; exit }
-END { if (found) exit 0; else exit 1 }
-AWK
-)
-                if awk "$verify_script" "$f"; then
-                    log "[VERIFY] Patch successful for $(basename "$f")."
-                    file_patched_count=$((file_patched_count + 1))
+                    # YAMAYI DOĞRULA
+                    if grep -q "^\s*${sed_replace}" "$f"; then
+                        log "[VERIFY] Patch successful for $(basename "$f")."
+                        file_patched_count=$((file_patched_count + 1))
+                    else
+                        err "[VERIFY] Patch FAILED for $(basename "$f")!"
+                    fi
                 else
-                    err "[VERIFY] Patch FAILED for $(basename "$f")! Method found, but replacement not."
+                    warn "Target line '$target_line' not found in $f, skipping."
                 fi
             fi
         done
