@@ -620,7 +620,19 @@ patch_framework() {
 
     modify_invoke_custom_methods "$decompile_dir"
 
-    recompile_jar "$framework_path" >/dev/null
+    # --- HATA DÜZELTME 2 ---
+    # Yeniden derlenen JAR'ı yakala ve orijinalinin üzerine yaz
+    local patched_jar_file
+    patched_jar_file=$(recompile_jar "$framework_path")
+    if [ -f "$patched_jar_file" ]; then
+        mv "$patched_jar_file" "$framework_path"
+        log "Replaced original $framework_path with patched version."
+    else
+        err "Recompilation created an unexpected file: $patched_jar_file"
+        return 1
+    fi
+    # --- DÜZELTME SONU ---
+    
     rm -rf "$decompile_dir" "$WORK_DIR/framework"
     log "Completed framework.jar patching"
 }
@@ -730,7 +742,19 @@ patch_services() {
     fi
 
     if [ $external_dir_flag -eq 0 ]; then
-        recompile_jar "$services_path" >/dev/null
+        # --- HATA DÜZELTME 2 ---
+        # Yeniden derlenen JAR'ı yakala ve orijinalinin üzerine yaz
+        local patched_jar_file
+        patched_jar_file=$(recompile_jar "$services_path")
+        if [ -f "$patched_jar_file" ]; then
+            mv "$patched_jar_file" "$services_path"
+            log "Replaced original $services_path with patched version."
+        else
+            err "Recompilation created an unexpected file: $patched_jar_file"
+            return 1
+        fi
+        # --- DÜZELTME SONU ---
+
         rm -rf "$decompile_dir" "$WORK_DIR/services"
         log "Completed services.jar patching"
     else
@@ -774,7 +798,7 @@ patch_miui_services() {
     patch_return_void_methods_all "verifyIsolationViolation" "$decompile_dir"
     patch_return_void_methods_all "canBeUpdate" "$decompile_dir"
 
-    # ----------------- DÜZELTİLMİŞ GENEL YAMA (Metod Kısıtlaması Kapatıldı) -----------------
+    # ----------------- HATA DÜZELTME 1 (Genel Yama) -----------------
     log "Searching for ALL instances of PackageManagerServiceImpl.smali..."
     local pms_impl_files
     # find'dan gelen sonuçları bir array'e at
@@ -797,21 +821,14 @@ patch_miui_services() {
         for f in "${pms_impl_files[@]}"; do
             if [ -f "$f" ]; then
                 
-                # DÜZELTME: grep komutu, sed gibi, satır başındaki boşlukları (indentation) hesaba katmalı.
+                # DÜZELTME: "Zaten yamalı" kontrolü kaldırıldı. 
+                # (const/4 v0, 0x0) çok genel bir satır olduğu için yanlış pozitif veriyordu.
+                # sed komutu zaten güvenlidir (idempotent).
+                
                 # -q (quiet) modu ile sadece var olup olmadığını kontrol et
                 if grep -q "^[[:space:]]*${sed_target}" "$f"; then
-                    
-                    # İYİLEŞTİRME: Dosya zaten yamalanmış mı diye kontrol et.
-                    if grep -q "^[[:space:]]*${sed_replace}" "$f"; then
-                        log "File is already patched: $(basename "$f")"
-                        file_patched_count=$((file_patched_count + 1))
-                        continue
-                    fi
-
                     log "Patching file: $f"
-                    # sed komutun zaten doğruydu (boşlukları yakalıyordu)
                     sed -i "s|^\([[:space:]]*\)$sed_target.*|\1${sed_replace}|" "$f"
-                    log "Patched IS_INTERNATIONAL_BUILD line in $(basename "$f")."
 
                     # YAMAYI DOĞRULA
                     if grep -q "^\s*${sed_replace}" "$f"; then
@@ -829,6 +846,7 @@ patch_miui_services() {
     fi
     # ----------------- YAMA SONU -----------------
 
+
     modify_invoke_custom_methods "$decompile_dir"
 
     # Targeted verification that won't hang
@@ -837,7 +855,21 @@ patch_miui_services() {
     grep -R -n --include='*.smali' '^[[:space:]]*\.method.*canBeUpdate' "$decompile_dir" | head -n 5 || true
 
     if [ $external_dir_flag -eq 0 ]; then
-        recompile_jar "$miui_services_path" >/dev/null
+        # --- HATA DÜZELTME 2 ---
+        # Yeniden derlenen JAR'ı yakala ve orijinalinin üzerine yaz
+        local patched_jar_file
+        patched_jar_file=$(recompile_jar "$miui_services_path")
+        
+        if [ -f "$patched_jar_file" ]; then
+            # Orijinal jar dosyasının üzerine yaz (Workflow'un doğru dosyayı alması için)
+            mv "$patched_jar_file" "$miui_services_path"
+            log "Replaced original $miui_services_path with patched version."
+        else
+            err "Recompilation created an unexpected file: $patched_jar_file"
+            return 1
+        fi
+        # --- DÜZELTME SONU ---
+        
         rm -rf "$decompile_dir" "$WORK_DIR/miui-services"
         log "Completed miui-services.jar patching"
     else
