@@ -32,7 +32,7 @@
   --glass-shadow: 0 8px 30px rgba(2,6,23,0.6);
 }
 
-/* Existing theme vars */
+/* DARK THEMES (existing) */
 :root.dark-blue {
   --bg: #0a1328;
   --bg-alt: #122146;
@@ -86,37 +86,119 @@
   --btn-text: #fff;
 }
 
-/* New theme: dark-glass (5. tema) - koyu tonlar, yüksek metin kontrastı and input contrast improvements */
+/* DARK GLASS (koyu glass varyantı) */
 :root.dark-glass {
-  --bg: #05060a;                /* daha koyu ana arkaplan */
-  --bg-alt: #080914;            /* panel arkaplan koyu */
-  --text: #ffffff;              /* yazılar net beyaz */
-  --accent: #7fc8ff;            /* cam için parlak accent */
+  --bg: #05060a;
+  --bg-alt: #080914;
+  --text: #ffffff;
+  --accent: #7fc8ff;
   --accent-dark: #2d5f86;
-  --input-bg: rgba(255,255,255,0.03);      /* input'lar hafif parlak ama koyu */
+  --input-bg: rgba(255,255,255,0.03);
   --input-text: #ffffff;
-  --input-border: rgba(255,255,255,0.12);  /* daha belirgin sınır */
-  --input-placeholder: rgba(255,255,255,0.56); /* daha görünür placeholder */
+  --input-border: rgba(255,255,255,0.12);
+  --input-placeholder: rgba(255,255,255,0.56);
   --btn-bg: linear-gradient(180deg, rgba(127,200,255,0.12), rgba(127,200,255,0.08));
   --btn-hover: rgba(127,200,255,0.18);
   --btn-text: #fff;
   --border: rgba(255,255,255,0.04);
 
-  /* Cam ayarları (daha belirgin blur ve koyu transparan) */
   --glass-bg: rgba(8,10,18,0.56);
   --glass-bg-alt: rgba(8,10,18,0.5);
   --glass-border: rgba(255,255,255,0.06);
   --glass-blur: 14px;
   --glass-saturate: 110%;
   --glass-shadow: 0 14px 44px rgba(0,0,0,0.78);
-
-  /* accent rgb for focus shadows */
   --accent-rgb: 127,200,255;
 }
 
-/* Glassmorphism utilities
-   When body has class "glass" the panels use the frosted effect.
-   When dark-glass theme is selected, JS will add both :root.dark-glass (html class) and body.glass. */
+/* LIGHT THEMES (yeni: açık tema değişkenleri) */
+:root.light-blue {
+  --bg: #f6fbff;
+  --bg-alt: #ffffff;
+  --text: #0b1330;
+  --accent: #2b66b8;
+  --accent-dark: #17406b;
+  --input-bg: #ffffff;
+  --input-text: #0b1330;
+  --input-border: #dbe9ff;
+  --input-placeholder: rgba(11,19,48,0.33);
+  --btn-bg: linear-gradient(180deg,#2b66b8,#1e4a8f);
+  --btn-hover: #144079;
+  --btn-text: #fff;
+  --border: #e6efff;
+}
+:root.light-green {
+  --bg: #fbfff6;
+  --bg-alt: #ffffff;
+  --text: #06220e;
+  --accent: #2f9a4a;
+  --accent-dark: #1f6a33;
+  --input-bg: #ffffff;
+  --input-text: #06220e;
+  --input-border: #e8f7e9;
+  --input-placeholder: rgba(6,34,14,0.33);
+  --btn-bg: linear-gradient(180deg,#2f9a4a,#1f6a33);
+  --btn-hover: #175022;
+  --btn-text: #fff;
+  --border: #eef7ee;
+}
+:root.light-purple {
+  --bg: #fbf8ff;
+  --bg-alt: #ffffff;
+  --text: #120b2a;
+  --accent: #6c40d9;
+  --accent-dark: #4b1f9b;
+  --input-bg: #ffffff;
+  --input-text: #120b2a;
+  --input-border: #f1eaff;
+  --input-placeholder: rgba(18,11,42,0.33);
+  --btn-bg: linear-gradient(180deg,#6c40d9,#4b1f9b);
+  --btn-hover: #3a0f77;
+  --btn-text: #fff;
+  --border: #f4efff;
+}
+:root.light-red {
+  --bg: #fff9f9;
+  --bg-alt: #ffffff;
+  --text: #2a0b0b;
+  --accent: #d94a62;
+  --accent-dark: #992a38;
+  --input-bg: #ffffff;
+  --input-text: #2a0b0b;
+  --input-border: #ffecec;
+  --input-placeholder: rgba(42,11,11,0.33);
+  --btn-bg: linear-gradient(180deg,#d94a62,#992a38);
+  --btn-hover: #7a1a2a;
+  --btn-text: #fff;
+  --border: #fff0f0;
+}
+
+/* LIGHT GLASS (açık cam) - yarı saydam beyaz frosted */
+:root.light-glass {
+  --bg: #f3f7fb;
+  --bg-alt: rgba(255,255,255,0.85);
+  --text: #071029;
+  --accent: #2b66b8;
+  --accent-dark: #17406b;
+  --input-bg: rgba(255,255,255,0.9);
+  --input-text: #071029;
+  --input-border: rgba(11,19,48,0.06);
+  --input-placeholder: rgba(7,16,41,0.45);
+  --btn-bg: linear-gradient(180deg, rgba(43,102,184,0.12), rgba(43,102,184,0.08));
+  --btn-hover: rgba(43,102,184,0.18);
+  --btn-text: #fff;
+  --border: rgba(11,19,48,0.06);
+
+  --glass-bg: rgba(255,255,255,0.72);
+  --glass-bg-alt: rgba(255,255,255,0.9);
+  --glass-border: rgba(11,19,48,0.06);
+  --glass-blur: 10px;
+  --glass-saturate: 110%;
+  --glass-shadow: 0 8px 30px rgba(2,6,23,0.08);
+  --accent-rgb: 43,102,184;
+}
+
+/* Glassmorphism utilities */
 body.glass .form-container,
 body.glass .modal-content,
 body.glass .footer,
@@ -128,48 +210,29 @@ body.glass .header {
   box-shadow: var(--glass-shadow);
 }
 
-/* standalone glass-card for selective use */
-.glass-card {
-  background: linear-gradient(180deg, var(--glass-bg), var(--glass-bg-alt));
-  border: 1px solid var(--glass-border);
-  border-radius: 14px;
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  box-shadow: var(--glass-shadow);
-}
-
-/* INPUT / KUTU İYİLEŞTİRMELERİ
-   Amaç: koyu temalarda kutuların belirgin, okunur ve odaklandığında net görünmesini sağlamak.
-*/
+/* Improved input / box visibility for dark and light */
 .form-group input[type="url"],
 .form-group input[type="number"],
 .form-group input[type="text"] {
     background: var(--input-bg);
     color: var(--input-text);
-    border: 1.75px solid var(--input-border);
+    border: 1.6px solid var(--input-border);
     border-radius: 11px;
     padding: 14px 18px;
     font-size: 1.13rem;
     outline: none;
-    margin-bottom: 3px;
+    margin-bottom: 6px;
     width: 100%;
-    min-width: 0;
-    max-width: 100%;
     box-sizing: border-box;
-    transition: background 0.2s, color 0.2s, border-color 0.18s, box-shadow 0.18s, transform 0.12s;
-    font-family: inherit;
-
-    /* Daha derin ama soft iç gölge ile kutu görünürlüğü arttı */
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 18px rgba(0,0,0,0.45);
+    transition: background 0.18s, color 0.18s, border-color 0.15s, box-shadow 0.15s, transform 0.12s;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 18px rgba(0,0,0,0.25);
 }
 
-/* Overwrite previous global placeholder rule so placeholders are visible */
 .form-group input::placeholder {
     color: var(--input-placeholder);
     opacity: 1;
 }
 
-/* readonly inputs keep not-allowed but visually still clear */
 input[readonly] {
     background-color: var(--input-bg);
     color: var(--input-text);
@@ -177,41 +240,29 @@ input[readonly] {
     opacity: 0.95;
 }
 
-/* daha belirgin odak efekti */
 .form-group input:focus {
     border-color: var(--accent);
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.02),
-      0 8px 30px rgba(0,0,0,0.6),
-      0 0 0 4px rgba(var(--accent-rgb,51,85,168),0.12);
+      0 8px 30px rgba(0,0,0,0.35),
+      0 0 0 6px rgba(var(--accent-rgb,51,85,168),0.08);
 }
 
-/* Eğer body.glass aktifse input'lara ekstra parlaklık ve border contrast ver */
 body.glass .form-group input[type="url"],
 body.glass .form-group input[type="number"],
 body.glass .form-group input[type="text"] {
-    background: rgba(255,255,255,0.03); /* hafif parlak */
-    border-color: rgba(255,255,255,0.12);
-    color: var(--input-text);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 10px 26px rgba(0,0,0,0.6);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 10px 26px rgba(0,0,0,0.25);
 }
 
-/* Labels ve ikonların okunurluğunu artır */
+/* Labels and icon clarity */
 .form-group label, .form-group i {
     color: var(--text) !important;
     font-weight: 700;
-    text-shadow: 0 1px 10px rgba(0,0,0,0.55);
-    letter-spacing: 0.01em;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.45);
 }
 
-/* Form container slightly lifted when glass active to increase separation */
-body.glass .form-container {
-  transform: translateY(0);
-  border-radius: 18px;
-}
-
-/* Temel yapı (geri kalan stil dosyası korunur) */
+/* Rest of original styles kept (header, form container, buttons, modal, footer, etc.) */
 body {
     background: var(--bg);
     color: var(--text);
@@ -284,22 +335,18 @@ a:hover {
     color: var(--text);
     border: 1px solid var(--accent);
     border-radius: 8px;
-    padding: 6px 16px;
+    padding: 6px 12px;
     font-size: 1rem;
     outline: none;
     margin-left: 5px;
     cursor: pointer;
 }
 
-.main-content {
-    margin-top: 18px;
-}
-
-/* Form Container - Arkaplan ve ortalama ayarı */
+/* Form Container */
 .form-container {
     background: var(--bg-alt);
     border-radius: 18px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
     padding: 32px 24px;
     margin-bottom: 24px;
     max-width: 910px;
@@ -313,7 +360,7 @@ a:hover {
     align-items: center;
 }
 
-/* Grid ayarı, responsive */
+/* Grid and rest kept */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -331,7 +378,6 @@ a:hover {
     }
 }
 
-/* Ortalı başlık ve ikon */
 .jar-urls h3 {
     display: flex;
     align-items: center;
@@ -342,7 +388,6 @@ a:hover {
     font-size: 1.2rem;
 }
 
-/* Patchleme Başlat başlığı ortalı */
 .form-header h2 {
     display: flex;
     align-items: center;
@@ -353,24 +398,13 @@ a:hover {
     font-weight: bold;
 }
 
-/* Form grup ve input ayarları */
 .form-header p {
     color: var(--text);
     margin-top: 6px;
     margin-bottom: 18px;
 }
 
-.form-group {
-    margin-bottom: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Rest of original styles kept (buttons, footer, modal, etc.) */
-
+/* Buttons, footer, modal etc. - keep as before but using CSS vars for colors */
 .form-actions {
     display: flex;
     justify-content: center;
@@ -380,7 +414,6 @@ a:hover {
     box-sizing: border-box;
 }
 
-/* MODERN PATCHLEME BUTONU */
 .btn, .btn-primary, .btn-action {
     background: var(--btn-bg) !important;
     color: var(--btn-text) !important;
@@ -419,13 +452,8 @@ a:hover {
     transform: translateY(-2px) scale(1.045);
 }
 
-.btn:active {
-    transform: scale(0.97);
-}
-
-.btn:focus {
-    box-shadow: 0 0 0 2px var(--accent);
-}
+.btn:active { transform: scale(0.97); }
+.btn:focus { box-shadow: 0 0 0 2px var(--accent); }
 
 .btn-secondary {
     background: var(--secondary-bg);
@@ -436,11 +464,9 @@ a:hover {
     padding: 10px 28px;
     box-shadow: var(--btn-shadow);
 }
-.btn-secondary:hover {
-    background: var(--secondary-hover);
-}
+.btn-secondary:hover { background: var(--secondary-hover); }
 
-/* Footer Styles */
+/* Footer & modal (kept) */
 .footer {
     margin-top: 32px;
     padding: 18px 0;
@@ -475,13 +501,12 @@ a:hover {
     background: var(--bg-alt);
     border-radius: 8px;
 }
-
 ::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 8px;
 }
 
-/* Modal pencere ortalama ve boyutlandırma */
+/* Modal */
 .modal {
     position: fixed;
     top: 0;
@@ -491,20 +516,19 @@ a:hover {
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(10, 19, 40, 0.7);
+    background: rgba(10, 19, 40, 0.6);
     z-index: 1000;
 }
-.modal[style*="display: flex"] {
-    display: flex !important;
-}
+.modal[style*="display: flex"] { display: flex !important; }
+
 .modal-content {
     background: var(--bg-alt);
     color: var(--text);
     border-radius: 24px;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+    box-shadow: 0 6px 40px rgba(0,0,0,0.25);
     padding: 32px 24px;
     width: 100%;
-    max-width: 340px;
+    max-width: 420px;
     min-width: 260px;
     text-align: center;
     position: relative;
@@ -514,18 +538,8 @@ a:hover {
     align-items: center;
 }
 
-/* Modal ikonları */
-.success-icon {
-    color: var(--success);
-    font-size: 2.2rem;
-    margin-bottom: 12px;
-}
-
-.error-icon {
-    color: var(--error);
-    font-size: 2.2rem;
-    margin-bottom: 12px;
-}
+.success-icon { color: var(--success); font-size: 2.2rem; margin-bottom: 12px; }
+.error-icon { color: var(--error); font-size: 2.2rem; margin-bottom: 12px; }
 
 .loading-spinner {
     border: 4px solid var(--accent);
@@ -537,14 +551,7 @@ a:hover {
     margin-bottom: 8px;
     display: none;
 }
+@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
 
-@keyframes spin {
-    0% { transform: rotate(0deg);}
-    100% { transform: rotate(360deg);}
-}
-
-/* Modal butonları */
-#modalClose, #modalWorkflow {
-    margin: 8px 4px 0 4px;
-    min-width: 100px;
-}
+/* Modal buttons */
+#modalClose, #modalWorkflow { margin: 8px 4px 0 4px; min-width: 100px; }
