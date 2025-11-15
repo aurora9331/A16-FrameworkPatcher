@@ -20,11 +20,12 @@
         <!-- Tema seçici eklendi -->
         <div class="theme-switcher" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;">
             <label for="themeColor"><i class="fa-solid fa-palette"></i> Tema Rengi:</label>
-            <select id="themeColor">
+            <select id="themeColor" aria-label="Tema Seçimi">
                 <option value="dark-blue">Koyu Mavi</option>
                 <option value="dark-green">Koyu Yeşil</option>
                 <option value="dark-purple">Koyu Mor</option>
                 <option value="dark-red">Koyu Kırmızı</option>
+                <option value="dark-glass">Glass (Cam)</option>
             </select>
         </div>
     </header>
@@ -93,7 +94,61 @@
         </div>
     </footer>
 </div>
+
 <script>
+/* ---------- Tema seçici logic (dark-glass => hem :root.dark-glass hem body.glass uygulanır) ---------- */
+document.addEventListener('DOMContentLoaded', function () {
+    const THEME_OPTIONS = ['dark-blue','dark-green','dark-purple','dark-red','dark-glass'];
+    const themeSelect = document.getElementById('themeColor');
+
+    function clearThemeClasses() {
+        // Temaları html (documentElement) üzerine uygularız çünkü CSS :root.* kullanıyor.
+        THEME_OPTIONS.forEach(t => document.documentElement.classList.remove(t));
+        // Glass efekti body üzerinde çalıştığı için body'den 'glass' sınıfını temizle
+        document.body.classList.remove('glass');
+    }
+
+    function applyTheme(theme) {
+        clearThemeClasses();
+        if (!theme) return;
+        if (theme === 'dark-glass') {
+            // :root.dark-glass için html'e sınıf, cam efekti için body'ye 'glass'
+            document.documentElement.classList.add('dark-glass');
+            document.body.classList.add('glass');
+        } else {
+            document.documentElement.classList.add(theme);
+        }
+    }
+
+    // Başlangıç: localStorage'dan yükle, yoksa dark-blue
+    const saved = (function() {
+        try { return localStorage.getItem('selectedTheme'); } catch (e) { return null; }
+    })() || 'dark-blue';
+
+    // Eğer select içinde yoksa (eskiden kaydedilmişse) temizle
+    if (themeSelect) {
+        const hasOption = Array.from(themeSelect.options).some(o => o.value === saved);
+        if (hasOption) {
+            themeSelect.value = saved;
+        } else {
+            // geçersiz kayıt varsa temizle
+            try { localStorage.removeItem('selectedTheme'); } catch (e) {}
+            themeSelect.value = 'dark-blue';
+        }
+    }
+
+    applyTheme(saved);
+
+    if (themeSelect) {
+        themeSelect.addEventListener('change', function() {
+            const val = this.value;
+            applyTheme(val);
+            try { localStorage.setItem('selectedTheme', val); } catch (e) {}
+        });
+    }
+});
+
+/* ---------- Patcher form handling (verilen orijinal davranış korunuyor) ---------- */
 const patchForm = document.getElementById('patchForm');
 const modal = document.getElementById('modalResult');
 const modalTitle = document.getElementById('modalTitle');
@@ -104,74 +159,64 @@ const modalError = document.getElementById('modalError');
 const modalClose = document.getElementById('modalClose');
 const modalWorkflow = document.getElementById('modalWorkflow');
 
-// Tema seçici fonksiyonu
-document.addEventListener('DOMContentLoaded', function () {
-    const themeSelect = document.getElementById('themeColor');
-    const theme = localStorage.getItem('selectedTheme') || 'dark-blue';
-    document.documentElement.classList.add(theme);
-    if (themeSelect) themeSelect.value = theme;
+if (patchForm) {
+    patchForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        modal.style.display = 'flex';
+        modalTitle.textContent = 'İşlem Yapılıyor...';
+        modalMessage.textContent = 'Patchleme iş akışı başlatılıyor, lütfen bekleyin.';
+        modalLoading.style.display = 'block';
+        modalSuccess.style.display = 'none';
+        modalError.style.display = 'none';
+        modalClose.style.display = 'none';
+        modalWorkflow.style.display = 'none';
 
-    if (themeSelect) {
-        themeSelect.addEventListener('change', function() {
-            document.documentElement.classList.remove('dark-blue', 'dark-green', 'dark-purple', 'dark-red');
-            document.documentElement.classList.add(this.value);
-            localStorage.setItem('selectedTheme', this.value);
-        });
-    }
-});
+        const formData = new FormData(patchForm);
+        const inputs = Object.fromEntries(formData);
 
-patchForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    modal.style.display = 'flex';
-    modalTitle.textContent = 'İşlem Yapılıyor...';
-    modalMessage.textContent = 'Patchleme iş akışı başlatılıyor, lütfen bekleyin.';
-    modalLoading.style.display = 'block';
-    modalSuccess.style.display = 'none';
-    modalError.style.display = 'none';
-    modalClose.style.display = 'none';
-    modalWorkflow.style.display = 'none';
+        try {
+            const response = await fetch("https://a16-framework-patcher.vercel.app/api/trigger-patch", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(inputs)
+            });
+            const result = await response.json();
 
-    const formData = new FormData(patchForm);
-    const inputs = Object.fromEntries(formData);
-
-    try {
-        const response = await fetch("https://a16-framework-patcher.vercel.app/api/trigger-patch", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(inputs)
-        });
-        const result = await response.json();
-
-        modalLoading.style.display = 'none';
-        if (response.ok) {
-            modalSuccess.style.display = 'inline-block';
-            modalTitle.textContent = 'Başarılı!';
-            modalMessage.textContent = result.message || 'Patchleme iş akışı başarıyla başlatıldı.';
-            modalWorkflow.style.display = 'inline-block';
-        } else {
+            modalLoading.style.display = 'none';
+            if (response.ok) {
+                modalSuccess.style.display = 'inline-block';
+                modalTitle.textContent = 'Başarılı!';
+                modalMessage.textContent = result.message || 'Patchleme iş akışı başarıyla başlatıldı.';
+                modalWorkflow.style.display = 'inline-block';
+            } else {
+                modalError.style.display = 'inline-block';
+                modalTitle.textContent = 'Hata!';
+                modalMessage.textContent = result.message || 'Patchleme başlatılamadı.' + (result.error ? ' (' + JSON.stringify(result.error) + ')' : '');
+                modalWorkflow.style.display = 'none';
+            }
+            modalClose.style.display = 'inline-block';
+        } catch (err) {
+            modalLoading.style.display = 'none';
             modalError.style.display = 'inline-block';
-            modalTitle.textContent = 'Hata!';
-            modalMessage.textContent = result.message || 'Patchleme başlatılamadı.' + (result.error ? ' (' + JSON.stringify(result.error) + ')' : '');
+            modalTitle.textContent = 'Bağlantı Hatası!';
+            modalMessage.textContent = err.message || 'Patchleme başlatılamadı.';
+            modalClose.style.display = 'inline-block';
             modalWorkflow.style.display = 'none';
         }
-        modalClose.style.display = 'inline-block';
-    } catch (err) {
-        modalLoading.style.display = 'none';
-        modalError.style.display = 'inline-block';
-        modalTitle.textContent = 'Bağlantı Hatası!';
-        modalMessage.textContent = err.message || 'Patchleme başlatılamadı.';
-        modalClose.style.display = 'inline-block';
-        modalWorkflow.style.display = 'none';
-    }
-});
+    });
+}
 
-modalClose.addEventListener('click', function() {
-    modal.style.display = 'none';
-});
+if (modalClose) {
+    modalClose.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+}
 
-modalWorkflow.onclick = function() {
-    window.open('https://github.com/aurora9331/A16-FrameworkPatcher/actions', '_blank');
-};
+if (modalWorkflow) {
+    modalWorkflow.onclick = function() {
+        window.open('https://github.com/aurora9331/A16-FrameworkPatcher/actions', '_blank');
+    };
+}
 </script>
 </body>
 </html>
