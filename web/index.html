@@ -17,24 +17,7 @@
             </div>
             <p class="subtitle">Android Framework dosyaları için kolay ve güvenli patchleme aracı.</p>
         </div>
-
-        <!-- Tema seçici (artık "Sistem" seçeneği var, sistem tercihine göre otomatik uyum) -->
-        <div class="theme-switcher" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;">
-            <label for="themeColor"><i class="fa-solid fa-palette"></i> Tema Rengi:</label>
-            <select id="themeColor" aria-label="Tema Seçimi">
-                <option value="system">Sistem (Tarayıcı)</option>
-                <option value="dark-blue">Koyu Mavi</option>
-                <option value="dark-green">Koyu Yeşil</option>
-                <option value="dark-purple">Koyu Mor</option>
-                <option value="dark-red">Koyu Kırmızı</option>
-                <option value="dark-glass">Glass (Cam - Koyu)</option>
-                <option value="light-blue">Açık Mavi</option>
-                <option value="light-green">Açık Yeşil</option>
-                <option value="light-purple">Açık Mor</option>
-                <option value="light-red">Açık Kırmızı</option>
-                <option value="light-glass">Glass (Cam - Açık)</option>
-            </select>
-        </div>
+        <!-- Tema seçenekleri kaldırıldı — tema ve vurgu rengi otomatik olarak tarayıcı/OS'den alınır -->
     </header>
 
     <main class="main-content">
@@ -105,107 +88,11 @@
     </footer>
 </div>
 
+<!-- Tema algılama ve vurgu atama dosyası: otomatik olarak tarayıcı/OS vurgusunu alır -->
+<script src="./theme-switcher.js"></script>
+
 <script>
-/*
-  Tema mantığı:
-  - Kullanıcı "Sistem (Tarayıcı)" seçerse sayfa otomatik olarak tarayıcı/OS'un prefers-color-scheme ayarına uyar.
-  - Sistem teması değişirse (ör. kullanıcı OS'da koyu/açık değiştirdi) sayfa otomatik güncellenir (eğer seçim "system" ise).
-  - Diğer seçimlerde kullanıcının tercihi kaydedilir ve doğrudan uygulanır.
-  - dark-glass / light-glass seçildiğinde body'ye 'glass' sınıfı eklenir, ayrıca html (documentElement) üzerine uygun :root.* sınıfı eklenir.
-*/
-
-document.addEventListener('DOMContentLoaded', function () {
-  const THEME_OPTIONS = [
-    'system',
-    'dark-blue','dark-green','dark-purple','dark-red','dark-glass',
-    'light-blue','light-green','light-purple','light-red','light-glass'
-  ];
-  const themeSelect = document.getElementById('themeColor');
-  const prefersDarkMQ = window.matchMedia('(prefers-color-scheme: dark)');
-
-  function clearAllThemeClasses() {
-    // :root-based classes -> add/remove on documentElement (html)
-    ['dark-blue','dark-green','dark-purple','dark-red','dark-glass',
-     'light-blue','light-green','light-purple','light-red','light-glass'
-    ].forEach(cls => document.documentElement.classList.remove(cls));
-    // glass effect controlled via body.glass
-    document.body.classList.remove('glass');
-  }
-
-  function applyThemeByName(name) {
-    clearAllThemeClasses();
-    if (!name) return;
-    if (name === 'system') {
-      applySystemTheme(); // resolve based on prefers-color-scheme
-      return;
-    }
-    // special handling for glass themes
-    if (name === 'dark-glass') {
-      document.documentElement.classList.add('dark-glass');
-      document.body.classList.add('glass');
-      return;
-    }
-    if (name === 'light-glass') {
-      document.documentElement.classList.add('light-glass');
-      document.body.classList.add('glass');
-      return;
-    }
-    // normal themes: apply directly to :root (html)
-    document.documentElement.classList.add(name);
-  }
-
-  function applySystemTheme() {
-    if (prefersDarkMQ.matches) {
-      // prefer dark system: pick a dark glass if you want or fallback to dark-blue
-      // we choose dark-glass by default for a nice look; you can change mapping here
-      document.documentElement.classList.add('dark-glass');
-      document.body.classList.add('glass');
-    } else {
-      // prefer light system: use light-glass by default
-      document.documentElement.classList.add('light-glass');
-      document.body.classList.add('glass');
-    }
-  }
-
-  // load saved preference
-  const saved = (function() {
-    try { return localStorage.getItem('selectedTheme'); } catch (e) { return null; }
-  })() || 'system';
-
-  // set select value safely
-  if (themeSelect) {
-    themeSelect.value = THEME_OPTIONS.includes(saved) ? saved : 'system';
-  }
-
-  // initial apply
-  applyThemeByName(saved);
-
-  // if user chooses a specific theme from select
-  if (themeSelect) {
-    themeSelect.addEventListener('change', function () {
-      const val = this.value;
-      applyThemeByName(val);
-      try { localStorage.setItem('selectedTheme', val); } catch (e) {}
-    });
-  }
-
-  // listen for system theme changes and update only if user chosen 'system'
-  try {
-    prefersDarkMQ.addEventListener
-      ? prefersDarkMQ.addEventListener('change', e => {
-          const cur = localStorage.getItem('selectedTheme') || 'system';
-          if (cur === 'system') applySystemTheme();
-        })
-      : prefersDarkMQ.addListener(e => {
-          const cur = localStorage.getItem('selectedTheme') || 'system';
-          if (cur === 'system') applySystemTheme();
-        });
-  } catch (e) {
-    // ignore older browsers
-  }
-});
-
-/* ---------- Patcher form handling (mevcut davranış korunur) ---------- */
+/* Patcher form handling (mevcut davranış korunur) */
 const patchForm = document.getElementById('patchForm');
 const modal = document.getElementById('modalResult');
 const modalTitle = document.getElementById('modalTitle');
